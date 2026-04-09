@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Finance Room</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,700;12..96,800&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+  <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js" defer></script>
+
+  <style>
+/* ════════════════════════════════════════════════════════
+   BASE
+════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #060E1A;
+  color: #E8DDD6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  cursor: none;
+}
+::selection { background: #C5A898; color: #0B1628; }
+
+/* Grain overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 9998;
+  pointer-events: none; opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px;
+}
+
+/* ════════════════════════════════════════════════════════
+   TOKENS
+════════════════════════════════════════════════════════ */
+:root {
+  --navy:   #0B1628;
+  --deep:   #060E1A;
+  --mid:    #112038;
+  --blush:  #C5A898;
+  --blush2: #DEC9BE;
+  --cream:  #F5F0EB;
+  --cream2: #EDE6DD;
+  --e:      cubic-bezier(0.16, 1, 0.3, 1);
+  --es:     cubic-bezier(0.34, 1.56, 0.64, 1); /* spring */
+}
+
+/* ════════════════════════════════════════════════════════
+   CURSOR
+════════════════════════════════════════════════════════ */
+#cur, #curR {
+  position: fixed; top: 0; left: 0;
+  border-radius: 50%; pointer-events: none; z-index: 10000;
+  will-change: transform;
+}
+#cur  { width: 7px; height: 7px; background: var(--blush); transition: width .3s var(--e), height .3s var(--e), background .3s; }
+#curR { width: 34px; height: 34px; border: 1px solid rgba(197,168,152,.4); transition: width .5s var(--e), height .5s var(--e), opacity .3s; }
+.ch #cur  { width: 12px; height: 12px; }
+.ch #curR { width: 50px; height: 50px; }
+.cl #cur  { width: 42px; height: 42px; opacity: .85; }
+.cl #curR { opacity: 0; }
+.on-light #cur  { background: var(--navy); }
+.on-light #curR { border-color: rgba(11,22,40,.25); }
+
+/* Progress */
+#pb { position: fixed; top: 0; left: 0; height: 2px; background: var(--blush); z-index: 600; transform-origin: left; transform: scaleX(0); }
+
+/* ════════════════════════════════════════════════════════
+   LAYOUT
+════════════════════════════════════════════════════════ */
+.c  { max-width: 1200px; margin: 0 auto; padding: 0 52px; }
+
+/* All sections clear the fixed nav on anchor scroll */
+section[id] { scroll-margin-top: 80px; }
+
+/* ════════════════════════════════════════════════════════
+   NAV
+════════════════════════════════════════════════════════ */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 28px 52px;
+  transition: padding .4s var(--e);
+}
+.nav::before {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  background: rgba(6,14,26,0); backdrop-filter: blur(0px);
+  transition: background .5s ease, backdrop-filter .5s ease;
+}
+.nav.scrolled { padding: 16px 52px; }
+.nav.scrolled::before { background: rgba(6,14,26,.9); backdrop-filter: blur(20px); }
+
+.logo { text-decoration: none; display: flex; align-items: center; }
+.logo-img {
+  height: 34px; width: auto; display: block;
+  mix-blend-mode: difference;
+  filter: brightness(1.08);
+}
+
+.nav-btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px; font-weight: 500; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--navy); background: var(--blush); padding: 11px 24px;
+  text-decoration: none; position: relative; overflow: hidden;
+  display: inline-block;
+}
+.nav-btn::after { content: attr(data-text); position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--blush2); transform: translateY(110%); transition: transform .4s var(--e); }
+.nav-btn:hover::after { transform: translateY(0); }
+
+
+/* ════════════════════════════════════════════════════════
+   TICKER
+════════════════════════════════════════════════════════ */
+.ticker { overflow: hidden; background: var(--blush); padding: 11px 0; }
+.ticker-row { display: flex; white-space: nowrap; animation: marq 28s linear infinite; }
+.t-word { font-family: 'DM Sans',sans-serif; font-size: 9px; font-weight: 500; letter-spacing: .28em; text-transform: uppercase; color: var(--navy); padding: 0 24px; }
+.t-sep  { color: rgba(11,22,40,.3); }
+@keyframes marq { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+/* ════════════════════════════════════════════════════════
+   SHARED
+════════════════════════════════════════════════════════ */
+.label {
+  display: block; font-size: 9px; font-weight: 500;
+  letter-spacing: .32em; text-transform: uppercase; color: var(--blush);
+  margin-bottom: 16px;
+}
+.btn {
+  display: inline-block; font-size: 10.5px; font-weight: 500;
+  letter-spacing: .2em; text-transform: uppercase; text-decoration: none;
+  padding: 15px 36px; border: 1px solid; overflow: hidden; position: relative;
+  transition: letter-spacing .3s, color .35s;
+}
+.btn span { position: relative; z-index: 1; }
+.btn::before { content: ''; position: absolute; inset: 0; transform: translateX(-101%); transition: transform .45s var(--e); }
+.btn:hover { letter-spacing: .26em; }
+.btn:hover::before { transform: translateX(0); }
+.btn-blush { color: var(--navy); background: var(--blush); border-color: var(--blush); }
+.btn-blush::before { background: var(--blush2); }
+.btn-ghost-l { color: var(--blush); background: transparent; border-color: rgba(197,168,152,.4); }
+.btn-ghost-l::before { background: var(--blush); }
+.btn-ghost-l:hover { color: var(--navy); }
+.btn-ghost-d { color: var(--navy); background: transparent; border-color: rgba(11,22,40,.25); }
+.btn-ghost-d::before { background: var(--navy); }
+.btn-ghost-d:hover { color: var(--cream); }
+
+/* ════════════════════════════════════════════════════════
+   LOADER
+════════════════════════════════════════════════════════ */
+#loader {
+  position: fixed; inset: 0; z-index: 9999;
+  overflow: hidden;
+}
+.ld-panel {
+  position: absolute; left: 0; right: 0;
+  background: #060E1A; will-change: transform;
+}
+.ld-panel-t { top: 0; height: 51%; }
+.ld-panel-b { bottom: 0; height: 51%; }
+
+/* The seam — the "line" that opens */
+.ld-seam {
+  position: absolute; left: 0; right: 0;
+  top: 50%; height: 1px;
+  background: rgba(197,168,152,.28);
+  transform: scaleX(0); transform-origin: center;
+  z-index: 3;
+}
+/* Brand mark sitting on the seam */
+.ld-brand {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -52%);
+  z-index: 4; text-align: center;
+  display: flex; flex-direction: column; align-items: center;
+  pointer-events: none;
+}
+.ld-logo {
+  display: block;
+  height: clamp(44px, 7vw, 90px); width: auto;
+  mix-blend-mode: difference;
+  filter: brightness(1.05);
+  margin-bottom: 4px;
+}
+.ld-meta {
+  display: block; font-size: 7.5px; letter-spacing: .3em;
+  text-transform: uppercase; color: rgba(197,168,152,.28);
+  margin-top: 14px;
+}
+/* Decorative dots on seam */
+.ld-dot {
+  position: absolute; top: 50%; z-index: 5;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--blush); transform: translateY(-50%);
+  opacity: 0;
+}
+.ld-dot-l { left: 52px; }
+.ld-dot-r { right: 52px; }
+
+/* ════════════════════════════════════════════════════════
+   HERO
+════════════════════════════════════════════════════════ */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; /* no justify-content: flex-end */
+  position: relative; overflow: hidden;
+}
+/* Pushes hero-body to bottom; min-height guarantees nav is never covered */
+.hero-spacer {
+  flex: 1;
+  min-height: 100px; /* always clears the fixed nav (~85px) */
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  background: var(--deep);
+  overflow: hidden;
+}
+/* Warm blush glow — upper right */
+.hero-bg::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 58% 52% at 74% 20%, rgba(197,168,152,.085) 0%, transparent 62%),
+    radial-gradient(ellipse 40% 50% at 6% 90%, rgba(11,30,54,.95) 0%, transparent 52%);
+  pointer-events: none;
+}
+/* Dot grid — top-right quadrant only */
+.hero-bg::after {
+  content: ''; position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(197,168,152,.18) 1px, transparent 1px);
+  background-size: 44px 44px;
+  -webkit-mask-image: radial-gradient(ellipse 72% 58% at 78% 24%, black 8%, transparent 68%);
+  mask-image: radial-gradient(ellipse 72% 58% at 78% 24%, black 8%, transparent 68%);
+  pointer-events: none;
+}
+
+/* Hero geometric decorative rings */
+.hbg-geo { position: absolute; inset: 0; pointer-events: none; will-change: transform; }
+.hbg-ring {
+  position: absolute; border-radius: 50%;
+  border: 1.5px solid rgba(197,168,152,.22);
+}
+.hbg-ring-a {
+  width: clamp(480px, 52vw, 740px);
+  height: clamp(480px, 52vw, 740px);
+  right: clamp(-160px, -10vw, -80px);
+  top: clamp(-220px, -18vh, -100px);
+  box-shadow: 0 0 80px rgba(197,168,152,.05), inset 0 0 80px rgba(197,168,152,.03);
+}
+.hbg-ring-b {
+  width: clamp(220px, 24vw, 360px);
+  height: clamp(220px, 24vw, 360px);
+  right: clamp(40px, 7vw, 140px);
+  top: clamp(30px, 6vh, 90px);
+  border-color: rgba(197,168,152,.14);
+}
+.hbg-ring-c {
+  width: clamp(80px, 9vw, 130px);
+  height: clamp(80px, 9vw, 130px);
+  right: clamp(160px, 16vw, 280px);
+  top: clamp(110px, 14vh, 180px);
+  border-color: rgba(197,168,152,.28);
+  box-shadow: 0 0 20px rgba(197,168,152,.08);
+}
+.hbg-hline {
+  position: absolute;
+  right: 0; top: 44%;
+  width: 44%; height: 1px;
+  background: linear-gradient(to right, transparent, rgba(197,168,152,.22), rgba(197,168,152,.06));
+}
+.hbg-vline {
+  position: absolute;
+  right: clamp(180px, 18vw, 300px); top: 0;
+  width: 1px; height: 45%;
+  background: linear-gradient(to bottom, transparent, rgba(197,168,152,.18), transparent);
+}
+/* Bottom fade to blend into ticker */
+.hero::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 220px;
+  background: linear-gradient(to bottom, transparent, var(--deep));
+  pointer-events: none; z-index: 1;
+}
+.hero-body {
+  position: relative; z-index: 2;
+  padding: 0 52px 88px;
+}
+.hero-kicker {
+  font-size: 9px; letter-spacing: .32em; text-transform: uppercase;
+  color: var(--blush); margin-bottom: 28px;
+  display: flex; align-items: center; gap: 14px;
+}
+.hero-kicker::before { content: ''; width: 28px; height: 1px; background: var(--blush); opacity: .5; }
+
+/* Word-split heading */
+.hero-hd {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(60px, 10.5vw, 152px);
+  font-weight: 800;
+  line-height: .94;
+  letter-spacing: -.01em;
+  color: #fff;
+  margin-bottom: 0;
+}
+.hero-hd .wl { display: block; overflow: hidden; }
+.hero-hd .wi { display: block; will-change: transform; }
+.hero-hd .blush { color: var(--blush2); }
+
+.hero-foot {
+  margin-top: 52px;
+  display: flex; align-items: flex-end;
+  justify-content: space-between; gap: 52px;
+}
+/* Left column: build-up lines + subtitle stacked */
+.hero-foot-l {
+  display: flex; flex-direction: column; gap: 20px;
+  max-width: 460px;
+}
+/* Three italic build-up lines */
+.hero-mid { }
+.hero-mid p {
+  font-family: 'Instrument Serif', serif; font-style: italic;
+  font-size: clamp(14px, 1.35vw, 18px);
+  color: rgba(232,221,214,.35);
+  line-height: 1.75; letter-spacing: .01em;
+}
+.hero-sub {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic; font-weight: 400;
+  font-size: clamp(16px, 1.7vw, 21px);
+  color: rgba(232,221,214,.62);
+  line-height: 1.55;
+}
+
+/* Scroll indicator */
+.hero-scroll {
+  position: absolute; bottom: 44px; right: 52px; z-index: 3;
+  display: flex; flex-direction: column; align-items: center; gap: 9px;
+}
+.hero-scroll-lbl { font-size: 8px; letter-spacing: .28em; text-transform: uppercase; color: rgba(197,168,152,.38); }
+.hero-scroll-ln { width: 1px; height: 52px; background: rgba(197,168,152,.18); position: relative; overflow: hidden; }
+.hero-scroll-ln::after {
+  content: ''; position: absolute; top: -100%; left: 0; width: 100%; height: 50%;
+  background: var(--blush); animation: sdrop 2.2s ease-in-out 2.5s infinite;
+}
+@keyframes sdrop { 0%{top:-100%;opacity:.9} 100%{top:100%;opacity:0} }
+
+/* ════════════════════════════════════════════════════════
+   S2 — TWO LAYERS
+════════════════════════════════════════════════════════ */
+.layers { background: var(--cream); padding: 120px 0 0; overflow: hidden; }
+
+.layers-intro { margin-bottom: 0; position: relative; }
+.layers-bgnum {
+  position: absolute; top: -20px; right: 0;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(140px,20vw,260px); font-weight: 800;
+  line-height: 1; color: rgba(11,22,40,.042);
+  letter-spacing: -.03em; user-select: none; pointer-events: none;
+}
+.layers-hd {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(44px, 6.5vw, 88px); font-weight: 800;
+  color: var(--navy); line-height: 1.0; letter-spacing: -.02em;
+  margin-bottom: 80px;
+}
+
+.layers-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  border-top: 1px solid rgba(11,22,40,.1);
+}
+.layer {
+  padding: 64px 64px;
+  border-right: 1px solid rgba(11,22,40,.1);
+}
+.layer:last-child { border-right: 0; }
+
+.layer-ico {
+  width: 52px; height: 52px; border-radius: 50%;
+  border: 1px solid rgba(197,168,152,.35);
+  background: rgba(197,168,152,.08);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 28px;
+}
+.layer-ico svg { width: 20px; height: 20px; stroke: var(--blush); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.layer-lbl { font-size: 9px; letter-spacing: .28em; text-transform: uppercase; color: var(--blush); font-weight: 500; display: block; margin-bottom: 14px; }
+.layer-h {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(22px, 2.4vw, 30px); font-weight: 700;
+  color: var(--navy); line-height: 1.2; margin-bottom: 18px;
+}
+.layer-p { font-size: 15px; font-weight: 300; color: rgba(11,22,40,.6); line-height: 1.82; }
+
+.layers-close {
+  background: var(--navy); padding: 72px 52px;
+  display: flex; align-items: center; justify-content: space-between; gap: 60px;
+}
+.layers-close-q {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic; font-weight: 400;
+  font-size: clamp(22px, 3vw, 40px);
+  color: var(--blush2); line-height: 1.35;
+}
+
+/* ════════════════════════════════════════════════════════
+   S3 — WHAT THIS IS NOT
+════════════════════════════════════════════════════════ */
+.not { background: var(--deep); padding: 120px 0 0; }
+
+.not-top { margin-bottom: 72px; }
+.not-ghost {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(60px,10vw,130px); font-weight: 800;
+  line-height: 1; letter-spacing: -.02em;
+  color: rgba(232,221,214,.035);
+  margin-bottom: -12px; user-select: none;
+}
+.not-hd {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(42px, 5.5vw, 76px); font-weight: 800;
+  color: #fff; line-height: 1.0; letter-spacing: -.02em;
+}
+.not-desc {
+  margin-top: 20px; font-size: 15px; font-weight: 300;
+  color: rgba(232,221,214,.45); max-width: 380px; line-height: 1.78;
+}
+
+.not-cards {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  border-top: 1px solid rgba(197,168,152,.1);
+}
+.not-card {
+  padding: 48px 36px 56px;
+  border-right: 1px solid rgba(197,168,152,.1);
+  position: relative; overflow: hidden;
+  transition: background .4s ease; cursor: default;
+}
+.not-card:last-child { border-right: 0; }
+.not-card-bar {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+  background: var(--blush); transform: scaleX(0); transform-origin: left;
+  transition: transform .5s var(--e);
+}
+.not-card:hover { background: rgba(197,168,152,.04); }
+.not-card:hover .not-card-bar { transform: scaleX(1); }
+
+.not-card-ico {
+  width: 52px; height: 52px; border-radius: 6px;
+  border: 1px solid rgba(197,168,152,.18); background: rgba(197,168,152,.07);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 32px; transition: background .3s;
+}
+.not-card:hover .not-card-ico { background: rgba(197,168,152,.14); }
+.not-card-ico svg { width: 22px; height: 22px; stroke: var(--blush); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+.not-card-n   { font-family:'Bricolage Grotesque',sans-serif; font-size:12px; font-weight:700; letter-spacing:.08em; color:rgba(197,168,152,.2); display:block; margin-bottom:12px; }
+.not-card-lbl { font-size:8.5px; letter-spacing:.28em; text-transform:uppercase; color:var(--blush); font-weight:500; display:block; margin-bottom:12px; }
+.not-card-h   { font-family:'Bricolage Grotesque',sans-serif; font-size:clamp(18px,1.8vw,22px); font-weight:700; color:#fff; line-height:1.18; margin-bottom:14px; }
+.not-card-p   { font-size:13.5px; font-weight:300; color:rgba(232,221,214,.45); line-height:1.75; }
+
+.not-answer {
+  padding: 64px 52px; background: var(--mid);
+  display: grid; grid-template-columns: 1fr 1px 1fr;
+  gap: 0; align-items: center;
+}
+.not-ans-div { background: rgba(197,168,152,.15); align-self: stretch; }
+.not-ans-q {
+  padding-right: 60px;
+  font-family: 'Instrument Serif', serif;
+  font-style: italic; font-size: clamp(17px,2vw,23px);
+  color: rgba(232,221,214,.35); line-height: 1.55;
+}
+.not-ans-a {
+  padding-left: 60px;
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(17px,2vw,23px); font-weight: 400;
+  color: var(--blush2); line-height: 1.55;
+}
+
+/* ════════════════════════════════════════════════════════
+   S4 — THE ROOM (split)
+════════════════════════════════════════════════════════ */
+.room { background: var(--cream); overflow: hidden; }
+.room-split { display: grid; grid-template-columns: 1fr 1fr; min-height: 680px; }
+
+.room-photo {
+  position: relative; overflow: hidden; background: var(--deep);
+  min-height: 480px;
+}
+/* Abstract geometric dark panel */
+.room-photo-abstract {
+  position: absolute; inset: 0;
+  background: linear-gradient(145deg, #0e2040 0%, #060e1a 55%, #080f1e 100%);
+}
+.room-photo-abstract::before {
+  content: '';
+  position: absolute;
+  bottom: -15%; left: -15%;
+  width: clamp(300px, 45vw, 500px);
+  height: clamp(300px, 45vw, 500px);
+  border-radius: 50%;
+  border: 1px solid rgba(197,168,152,.07);
+}
+.room-photo-abstract::after {
+  content: '';
+  position: absolute;
+  top: 12%; right: -8%;
+  width: clamp(140px, 18vw, 220px);
+  height: clamp(140px, 18vw, 220px);
+  border-radius: 50%;
+  border: 1px solid rgba(197,168,152,.05);
+}
+.room-photo-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(197,168,152,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(197,168,152,.035) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: linear-gradient(135deg, transparent 30%, black 100%);
+  mask-image: linear-gradient(135deg, transparent 30%, black 100%);
+}
+.room-photo::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to right, transparent, rgba(6,14,26,.25)); }
+.room-photo-word {
+  position: absolute; bottom: 28px; left: 32px; z-index: 2;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(80px,11vw,140px); font-weight: 800;
+  line-height: .88; letter-spacing: -.02em;
+  color: rgba(255,255,255,.055); user-select: none; pointer-events: none;
+}
+/* Accent line on room panel */
+.room-photo-line {
+  position: absolute; top: 52px; left: 52px; right: 52px; z-index: 2;
+  height: 1px; background: linear-gradient(to right, rgba(197,168,152,.25), transparent);
+}
+
+.room-content { padding: 80px 72px; display: flex; flex-direction: column; justify-content: center; }
+.room-hd {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(34px,4vw,54px); font-weight: 800;
+  color: var(--navy); line-height: 1.0; letter-spacing: -.02em; margin-bottom: 44px;
+}
+
+.room-list { list-style: none; }
+.room-li {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding: 20px 0; border-bottom: 1px solid rgba(11,22,40,.1);
+  transition: padding-left .35s var(--e); cursor: default;
+}
+.room-li:first-child { border-top: 1px solid rgba(11,22,40,.1); }
+.room-li:hover { padding-left: 10px; }
+.room-li:hover .ri-ico { background: rgba(197,168,152,.2); }
+.room-li:hover .ri-txt { color: var(--navy); }
+.ri-ico {
+  width: 30px; height: 30px; flex-shrink: 0; border-radius: 50%;
+  background: rgba(197,168,152,.12);
+  display: flex; align-items: center; justify-content: center;
+  transition: background .3s;
+}
+.ri-ico svg { width: 13px; height: 13px; stroke: var(--blush); fill: none; stroke-width: 2; stroke-linecap: round; }
+.ri-txt { font-size: 15px; font-weight: 400; color: rgba(11,22,40,.78); line-height: 1.5; transition: color .3s; }
+.ri-txt small { display: block; font-size: 12.5px; font-weight: 300; color: rgba(11,22,40,.4); margin-top: 3px; }
+
+/* ════════════════════════════════════════════════════════
+   S5 — INSIDE THE ROOM
+════════════════════════════════════════════════════════ */
+.inside {
+  position: relative; overflow: hidden;
+  background: #070d1c;
+  padding: 120px 0 100px;
+}
+/* Horizontal ruled lines — architectural feel */
+.inside::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background-image: linear-gradient(rgba(197,168,152,.03) 1px, transparent 1px);
+  background-size: 100% 88px;
+  pointer-events: none;
+}
+/* Large background label */
+.inside::after {
+  content: 'INSIDE';
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(100px, 16vw, 220px);
+  font-weight: 800; letter-spacing: -.02em;
+  color: rgba(197,168,152,.022);
+  white-space: nowrap; user-select: none; pointer-events: none;
+  line-height: 1;
+}
+.inside-body { position: relative; z-index: 2; padding: 0 52px; width: 100%; }
+.inside-hd {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(26px,3.4vw,48px); font-weight: 700;
+  color: #fff; line-height: 1.22; margin-bottom: 64px; max-width: 600px;
+  letter-spacing: -.01em;
+}
+/* Label above inside heading */
+.inside-lbl {
+  display: block; font-size: 9px; font-weight: 500;
+  letter-spacing: .32em; text-transform: uppercase; color: var(--blush);
+  margin-bottom: 20px;
+}
+
+.stmts { display: grid; grid-template-columns: 1fr 1fr; max-width: 1100px; gap: 0; }
+.stmt {
+  padding: 26px 48px 26px 0;
+  border-bottom: 1px solid rgba(197,168,152,.14);
+  display: flex; align-items: flex-start; gap: 16px;
+  cursor: default; transition: padding-left .35s var(--e);
+}
+.stmt:nth-child(2n) { padding: 26px 0 26px 48px; border-left: 1px solid rgba(197,168,152,.14); }
+.stmt:hover { padding-left: 10px; }
+.stmt:nth-child(2n):hover { padding-left: 56px; }
+.stmt:hover .stmt-t { color: var(--blush2); }
+.stmt-dash { width: 14px; height: 1px; background: var(--blush); opacity: .38; flex-shrink: 0; margin-top: 11px; }
+.stmt-t { font-size: clamp(14px,1.5vw,17px); font-weight: 300; line-height: 1.72; color: rgba(232,221,214,.7); transition: color .3s; }
+.stmt-t em { font-style: italic; color: var(--blush2); }
+
+.inside-foot {
+  max-width: 1100px; margin-top: 72px;
+  display: flex; align-items: center; gap: 32px;
+}
+.inside-foot-r { flex: 1; height: 1px; background: rgba(197,168,152,.18); }
+.inside-foot-t {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic; font-size: clamp(15px,1.7vw,20px);
+  color: rgba(197,168,152,.5); text-align: center;
+  white-space: nowrap;
+}
+
+/* ════════════════════════════════════════════════════════
+   S6 — WHO THIS IS FOR
+════════════════════════════════════════════════════════ */
+.who { background: var(--cream2); padding: 120px 0 0; overflow: hidden; }
+
+.who-intro { margin-bottom: 72px; position: relative; }
+.who-bgnum {
+  position: absolute; top: -20px; right: 0;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(140px,20vw,260px); font-weight: 800;
+  line-height: 1; color: rgba(11,22,40,.038); letter-spacing: -.03em;
+  user-select: none; pointer-events: none;
+}
+.who-hd {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(38px,5.5vw,74px); font-weight: 800;
+  color: var(--navy); line-height: 1.0; letter-spacing: -.02em;
+}
+
+.who-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+.who-card {
+  padding: 64px 52px; position: relative; overflow: hidden;
+  border-right: 1px solid rgba(11,22,40,.1);
+  transition: background .4s ease; cursor: default;
+}
+.who-card:last-child { border-right: 0; }
+.who-card-top-bar {
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--blush); transform: scaleX(0); transform-origin: left;
+  transition: transform .5s var(--e);
+}
+.who-card:hover { background: var(--cream); }
+.who-card:hover .who-card-top-bar { transform: scaleX(1); }
+
+/* Third card = abstract accent panel */
+.who-photo {
+  padding: 0; background: var(--navy); border-right: 0; overflow: hidden; position: relative;
+  cursor: default;
+}
+.who-photo::before {
+  content: '';
+  position: absolute;
+  bottom: -30%; left: -20%;
+  width: clamp(240px, 32vw, 360px);
+  height: clamp(240px, 32vw, 360px);
+  border-radius: 50%;
+  border: 1px solid rgba(197,168,152,.1);
+  transition: transform .6s var(--e);
+}
+.who-photo:hover::before { transform: scale(1.06); }
+.who-photo::after {
+  content: '';
+  position: absolute;
+  top: 14%; right: -12%;
+  width: clamp(100px, 14vw, 170px);
+  height: clamp(100px, 14vw, 170px);
+  border-radius: 50%;
+  border: 1px solid rgba(197,168,152,.065);
+}
+/* Subtle dot grid */
+.who-photo-grid {
+  position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(197,168,152,.12) 1px, transparent 1px);
+  background-size: 36px 36px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 60% 60%, black 20%, transparent 75%);
+  mask-image: radial-gradient(ellipse 80% 70% at 60% 60%, black 20%, transparent 75%);
+}
+.who-photo-cap {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 2; padding: 40px 44px;
+  font-family: 'Instrument Serif', serif; font-style: italic;
+  font-size: clamp(16px,1.8vw,21px); color: rgba(197,168,152,.75); line-height: 1.5;
+}
+.who-photo-num {
+  position: absolute; top: 40px; right: 44px; z-index: 2;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 11px; font-weight: 600; letter-spacing: .22em;
+  color: rgba(197,168,152,.25); text-transform: uppercase;
+}
+
+.who-tag { display: inline-block; font-size: 8.5px; letter-spacing: .28em; text-transform: uppercase; color: var(--blush); font-weight: 500; border: 1px solid rgba(197,168,152,.35); padding: 6px 13px; margin-bottom: 24px; }
+.who-card-h { font-family:'Bricolage Grotesque',sans-serif; font-size:clamp(19px,2vw,26px); font-weight:700; color:var(--navy); line-height:1.18; margin-bottom:16px; letter-spacing:-.01em; }
+.who-card-p { font-size:14.5px; font-weight:300; color:rgba(11,22,40,.58); line-height:1.82; }
+
+.who-foot {
+  background: var(--navy); padding: 68px 52px;
+  display: flex; align-items: center; justify-content: space-between; gap: 60px;
+}
+.who-foot-l {
+  display: flex; align-items: center; gap: 24px; flex: 1;
+}
+.who-foot-r { height: 1px; background: rgba(197,168,152,.15); flex: 1; }
+.who-foot-t {
+  font-family: 'Instrument Serif', serif; font-style: italic;
+  font-size: clamp(16px,1.9vw,22px); color: rgba(197,168,152,.45); white-space: nowrap;
+}
+
+/* ════════════════════════════════════════════════════════
+   S7 — WHAT HAPPENS
+════════════════════════════════════════════════════════ */
+.happens { background: var(--navy); padding: 120px 0 0; }
+.happens-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 60px; margin-bottom: 72px; }
+.happens-hd {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(40px,5.5vw,72px); font-weight: 800;
+  color: #fff; line-height: 1.0; letter-spacing: -.02em;
+}
+.happens-note { font-size: 14px; font-weight: 300; color: rgba(232,221,214,.38); max-width: 260px; line-height: 1.78; }
+
+.cmp-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  border-top: 1px solid rgba(197,168,152,.1);
+}
+.cmp-card {
+  padding: 52px 44px 60px;
+  border-right: 1px solid rgba(197,168,152,.1);
+  position: relative; overflow: hidden;
+  transition: border-color .4s, background .4s; cursor: default;
+}
+.cmp-card:last-child { border-right: 0; }
+.cmp-card::before { content: ''; position: absolute; inset: 0; background: rgba(197,168,152,.04); transform: translateY(101%); transition: transform .5s var(--e); }
+.cmp-card:hover { border-color: rgba(197,168,152,.25); }
+.cmp-card:hover::before { transform: translateY(0); }
+.cmp-card > * { position: relative; z-index: 1; }
+
+.cmp-n {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(52px,7vw,88px); font-weight: 800;
+  line-height: 1; color: rgba(197,168,152,.07); display: block; margin-bottom: 24px;
+  letter-spacing: -.02em;
+}
+.cmp-before {
+  font-size: 14px; font-weight: 300; line-height: 1.65;
+  color: rgba(232,221,214,.28);
+  text-decoration: line-through; text-decoration-color: rgba(197,168,152,.22);
+  padding-bottom: 20px; margin-bottom: 16px;
+  border-bottom: 1px solid rgba(197,168,152,.1);
+}
+.cmp-vs  { display: block; font-size: 8px; letter-spacing: .3em; text-transform: uppercase; color: rgba(197,168,152,.35); margin-bottom: 14px; }
+.cmp-after {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(17px,1.7vw,21px); font-weight: 400;
+  color: var(--blush2); line-height: 1.5;
+}
+
+.cmp-note {
+  padding: 52px 0; border-top: 1px solid rgba(197,168,152,.1);
+  display: grid; grid-template-columns: auto 1fr; gap: 44px; align-items: center;
+}
+.cmp-note-lbl { font-size: 8.5px; letter-spacing: .3em; text-transform: uppercase; color: rgba(197,168,152,.3); white-space: nowrap; }
+.cmp-note-txt { font-size: 14px; font-weight: 300; color: rgba(232,221,214,.35); line-height: 1.78; }
+
+/* ════════════════════════════════════════════════════════
+   S8 — FINAL CTA
+════════════════════════════════════════════════════════ */
+.final { background: var(--cream); overflow: hidden; }
+.final-split { display: grid; grid-template-columns: 1fr 1fr; min-height: 700px; }
+
+.final-photo {
+  position: relative; overflow: hidden; background: var(--deep); min-height: 420px;
+}
+/* Abstract dark panel with geometric accents */
+.final-photo-abstract {
+  position: absolute; inset: 0;
+  background: linear-gradient(155deg, #0c1d38 0%, #060e1a 60%, #070d1c 100%);
+}
+.final-photo-abstract::before {
+  content: '';
+  position: absolute;
+  top: -10%; left: -15%;
+  width: clamp(360px, 48vw, 560px);
+  height: clamp(360px, 48vw, 560px);
+  border-radius: 50%;
+  border: 1px solid rgba(197,168,152,.07);
+}
+.final-photo-abstract::after {
+  content: '';
+  position: absolute;
+  bottom: 10%; right: -10%;
+  width: clamp(120px, 16vw, 200px);
+  height: clamp(120px, 16vw, 200px);
+  border-radius: 50%;
+  border: 1px solid rgba(197,168,152,.055);
+}
+.final-photo-dots {
+  position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(197,168,152,.1) 1px, transparent 1px);
+  background-size: 40px 40px;
+  -webkit-mask-image: radial-gradient(ellipse 65% 60% at 38% 42%, black 12%, transparent 70%);
+  mask-image: radial-gradient(ellipse 65% 60% at 38% 42%, black 12%, transparent 70%);
+}
+/* Horizontal accent lines */
+.final-photo-lines {
+  position: absolute; left: 52px; right: 52px; top: 60px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.final-photo-lines span {
+  display: block; height: 1px;
+  background: rgba(197,168,152,.1);
+}
+.final-photo-lines span:first-child { width: 60%; background: rgba(197,168,152,.18); }
+.final-photo-lines span:last-child { width: 35%; }
+
+.final-photo-qt {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 2; padding: 48px 52px;
+  font-family: 'Instrument Serif', serif; font-style: italic;
+  font-size: clamp(17px,2vw,24px); color: rgba(197,168,152,.7); line-height: 1.55;
+  border-top: 1px solid rgba(197,168,152,.1);
+  background: linear-gradient(to top, rgba(6,14,26,.6), transparent);
+}
+
+.final-content {
+  padding: 100px 80px; display: flex; flex-direction: column; justify-content: center;
+}
+.final-hd {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(34px,4.2vw,56px); font-weight: 800;
+  color: var(--navy); line-height: 1.08; letter-spacing: -.02em; margin-bottom: 24px;
+}
+.final-sub { font-size: 16px; font-weight: 300; color: rgba(11,22,40,.5); line-height: 1.8; margin-bottom: 14px; }
+.final-em {
+  font-family: 'Instrument Serif', serif; font-style: italic;
+  font-size: clamp(18px,2vw,26px); color: rgba(11,22,40,.72); line-height: 1.45; margin-bottom: 52px;
+}
+.final-acts { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+
+/* ════════════════════════════════════════════════════════
+   FOOTER
+════════════════════════════════════════════════════════ */
+.foot { background: var(--deep); padding: 52px 52px; border-top: 1px solid rgba(197,168,152,.07); }
+.foot-in { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 40px; }
+.foot-logo-img { height: 28px; width: auto; display: block; mix-blend-mode: difference; opacity: .7; }
+.foot-meta { display: flex; align-items: center; gap: 14px; }
+.foot-meta span { font-size: 10.5px; letter-spacing: .1em; color: rgba(232,221,214,.22); font-weight: 300; }
+.foot-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(197,168,152,.18); }
+.foot-link { font-size: 9.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--blush); text-decoration: none; opacity: .55; border-bottom: 1px solid rgba(197,168,152,.18); padding-bottom: 2px; transition: opacity .3s, border-color .3s; }
+.foot-link:hover { opacity: 1; border-color: var(--blush); }
+
+/* ════════════════════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════════════════════ */
+@media(max-width:1100px){
+  .room-split,.final-split{ grid-template-columns:1fr; }
+  .room-photo,.final-photo{ min-height:400px; }
+  .who-grid{ grid-template-columns:1fr 1fr; }
+  .who-photo{ display:none; }
+  .cmp-grid{ grid-template-columns:1fr; border-left:1px solid rgba(197,168,152,.1); }
+  .cmp-card{ border-right:1px solid rgba(197,168,152,.1); border-bottom:1px solid rgba(197,168,152,.1); }
+  .happens-top{ flex-direction:column; gap:20px; }
+}
+@media(max-width:860px){
+  .c{ padding:0 28px; }
+  .nav{ padding:22px 28px; }
+  .nav.scrolled{ padding:14px 28px; }
+  .hero-body,.inside-body{ padding-left:28px; padding-right:28px; }
+  .inside{ padding:80px 0 72px; }
+  .hero-foot{ flex-direction:column; align-items:flex-start; gap:24px; }
+  .hero-foot-l{ max-width:100%; }
+  .hero-scroll{ right:28px; }
+  .layers-grid,.who-grid{ grid-template-columns:1fr; }
+  .layer{ border-right:0; border-bottom:1px solid rgba(11,22,40,.1); }
+  .layer:last-child{ border-bottom:0; }
+  .not-cards{ grid-template-columns:1fr 1fr; }
+  .not-answer{ grid-template-columns:1fr; }
+  .not-ans-div{ display:none; }
+  .not-ans-q{ padding-right:0; }
+  .not-ans-a{ padding-left:0; margin-top:16px; }
+  .stmts{ grid-template-columns:1fr; }
+  .stmt:nth-child(2n){ padding:26px 0; border-left:0; }
+  .layers-close{ flex-direction:column; gap:32px; }
+  .who-foot{ flex-direction:column; gap:32px; }
+  .room-content{ padding:60px 36px; }
+  .final-content{ padding:60px 36px; }
+  .foot-in{ flex-direction:column; gap:24px; text-align:center; }
+  .foot-meta{ flex-wrap:wrap; justify-content:center; }
+}
+@media(max-width:560px){
+  .not-cards{ grid-template-columns:1fr; }
+  .hero-hd{ font-size:clamp(52px,14vw,90px); }
+  .who-card{ padding:48px 28px; }
+}
+  </style>
+</head>
+<body>
+
+<!-- ═══════ LOADER ═══════ -->
+<div id="loader" aria-hidden="true">
+  <div class="ld-panel ld-panel-t"></div>
+  <div class="ld-panel ld-panel-b"></div>
+  <div class="ld-seam"></div>
+  <div class="ld-dot ld-dot-l"></div>
+  <div class="ld-dot ld-dot-r"></div>
+  <div class="ld-brand">
+    <img src="logo.png" alt="The Finance Room" class="ld-logo">
+    <span class="ld-meta">Mumbai &middot; In Person &middot; By Application Only</span>
+  </div>
+</div>
+
+<!-- Cursor -->
+<div id="cur"></div><div id="curR"></div>
+<!-- Progress -->
+<div id="pb"></div>
+<!-- Float CTA removed — nav provides persistent access -->
+
+<!-- NAV ────────────────────────────────────────────────── -->
+<nav class="nav" id="nav">
+  <a href="#" class="logo">
+    <img src="logo.png" alt="The Finance Room" class="logo-img">
+  </a>
+  <a href="https://docs.google.com/forms/d/e/1FAIpQLSeZWqYbJP-D4sZddwpGRSbjO6zInBgvFIyfDg8Gidaun9mTbw/viewform" target="_blank" rel="noopener" class="nav-btn" data-text="Apply for Access">Apply for Access</a>
+</nav>
+
+<!-- S1: HERO ────────────────────────────────────────────── -->
+<section class="hero" id="home">
+  <div class="hero-bg" aria-hidden="true">
+    <div class="hbg-geo">
+      <div class="hbg-ring hbg-ring-a"></div>
+      <div class="hbg-ring hbg-ring-b"></div>
+      <div class="hbg-ring hbg-ring-c"></div>
+      <div class="hbg-hline"></div>
+      <div class="hbg-vline"></div>
+    </div>
+  </div>
+  <div class="hero-spacer" aria-hidden="true"></div>
+  <div class="hero-body">
+    <p class="hero-kicker" id="hKick">Mumbai · In Person · By Application Only</p>
+    <h1 class="hero-hd" id="heroHd">
+      <span class="wl"><span class="wi" id="hw1">The most valuable</span></span>
+      <span class="wl"><span class="wi" id="hw2">knowledge in finance</span></span>
+      <span class="wl"><span class="wi" id="hw3">is never written down.</span></span>
+      <span class="wl"><span class="wi blush" id="hw4">Until Now.</span></span>
+    </h1>
+    <div class="hero-foot" id="hFoot">
+      <div class="hero-foot-l">
+        <div class="hero-mid" id="hMid">
+          <p>It lives inside people.</p>
+          <p>It moves through proximity.</p>
+          <p>It rarely reaches most people.</p>
+        </div>
+        <p class="hero-sub">A closed-door room where real practitioners work through real scenarios.</p>
+      </div>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSeZWqYbJP-D4sZddwpGRSbjO6zInBgvFIyfDg8Gidaun9mTbw/viewform" target="_blank" rel="noopener" class="btn btn-blush mag"><span>Apply for Access</span></a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <span class="hero-scroll-lbl">Scroll</span>
+    <div class="hero-scroll-ln"></div>
+  </div>
+</section>
+
+<!-- TICKER ─────────────────────────────────────────────── -->
+<div class="ticker"><div class="ticker-row" id="tkRow"></div></div>
+
+<!-- S2: TWO LAYERS ──────────────────────────────────────── -->
+<section class="layers" id="about">
+  <div class="c">
+    <div class="layers-intro">
+      <div class="layers-bgnum" aria-hidden="true">01</div>
+      <span class="label" id="lyLbl">The Premise</span>
+      <h2 class="layers-hd" id="lyHd">Finance has<br>two layers.</h2>
+    </div>
+  </div>
+  <div class="layers-grid">
+    <div class="layer" id="ly1">
+      <div class="layer-ico"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+      <span class="layer-lbl">What you already know</span>
+      <h3 class="layer-h">Concepts, models, frameworks.</h3>
+      <p class="layer-p">Accessible to everyone. Taught in classrooms. Practised in case studies. The foundation that gets you in the room.</p>
+    </div>
+    <div class="layer" id="ly2">
+      <div class="layer-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg></div>
+      <span class="layer-lbl">What actually matters</span>
+      <h3 class="layer-h">Judgment. What to focus on. What to ignore.</h3>
+      <p class="layer-p">How to read a situation or a client. Judgment doesn't live in a syllabus or a book. It travels only through proximity to those who have already built it.</p>
+    </div>
+  </div>
+  <div class="layers-close">
+    <p class="layers-close-q" id="lyQ">This room is for the second layer.</p>
+  </div>
+</section>
+
+<!-- S3: WHAT THIS IS NOT ─────────────────────────────────── -->
+<section class="not" id="format">
+  <div class="c">
+    <div class="not-top">
+      <p class="not-ghost" id="notG" aria-hidden="true">THE FORMAT</p>
+      <h2 class="not-hd" id="notHd">What this is not.</h2>
+      <p class="not-desc" id="notD">A working session. One question. How does an experienced practitioner actually think?</p>
+    </div>
+  </div>
+  <div class="not-cards">
+    <div class="not-card" id="nc1">
+      <div class="not-card-bar"></div>
+      <div class="not-card-ico"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg></div>
+      <span class="not-card-n">01</span><span class="not-card-lbl">Not a course</span>
+      <h3 class="not-card-h">No syllabus.</h3>
+      <p class="not-card-p">No slides. No recordings. There is nothing to take home and review later.</p>
+    </div>
+    <div class="not-card" id="nc2">
+      <div class="not-card-bar"></div>
+      <div class="not-card-ico"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg></div>
+      <span class="not-card-n">02</span><span class="not-card-lbl">Not a webinar</span>
+      <h3 class="not-card-h">In person. Closed door.</h3>
+      <p class="not-card-p">Two hours. Presence is the point. You cannot watch from a distance.</p>
+    </div>
+    <div class="not-card" id="nc3">
+      <div class="not-card-bar"></div>
+      <div class="not-card-ico"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="23" y2="12"/><line x1="23" y1="8" x2="19" y2="12"/></svg></div>
+      <span class="not-card-n">03</span><span class="not-card-lbl">Not a networking event</span>
+      <h3 class="not-card-h">Relationships are a byproduct.</h3>
+      <p class="not-card-p">You are here to work. What forms between people who work seriously is its own reward.</p>
+    </div>
+    <div class="not-card" id="nc4">
+      <div class="not-card-bar"></div>
+      <div class="not-card-ico"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></div>
+      <span class="not-card-n">04</span><span class="not-card-lbl">Not a panel</span>
+      <h3 class="not-card-h">One practitioner.</h3>
+      <p class="not-card-p">One topic. No stage. No audience. A working session around a single, sharply defined question.</p>
+    </div>
+  </div>
+  <div class="not-answer" id="notAns">
+    <p class="not-ans-q">A working session. One question.</p>
+    <div class="not-ans-div"></div>
+    <p class="not-ans-a">How does an experienced practitioner actually think?</p>
+  </div>
+</section>
+
+<!-- S4: THE ROOM ────────────────────────────────────────── -->
+<section class="room" id="the-room">
+  <div class="room-split">
+    <div class="room-photo">
+      <div class="room-photo-abstract" aria-hidden="true"></div>
+      <div class="room-photo-grid" aria-hidden="true"></div>
+      <div class="room-photo-line" aria-hidden="true"></div>
+      <p class="room-photo-word" aria-hidden="true">THE<br>ROOM</p>
+    </div>
+    <div class="room-content">
+      <span class="label" id="rmLbl">The Structure</span>
+      <h2 class="room-hd" id="rmHd">Private.<br>Invite-only.<br>In person.</h2>
+      <ul class="room-list">
+        <li class="room-li" id="ri1"><div class="ri-ico"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><span class="ri-txt">One practitioner <small>A single, experienced voice. No panel dynamics.</small></span></li>
+        <li class="room-li" id="ri2"><div class="ri-ico"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><span class="ri-txt">A small, vetted group <small>Filtered by seriousness. Not seniority.</small></span></li>
+        <li class="room-li" id="ri3"><div class="ri-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><span class="ri-txt">One sharply defined topic <small>No sprawl. Every hour matters.</small></span></li>
+        <li class="room-li" id="ri4"><div class="ri-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg></div><span class="ri-txt">Two hours <small>Closed door. No recordings.</small></span></li>
+        <li class="room-li" id="ri5"><div class="ri-ico"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span class="ri-txt">No slides. No recordings. <small>What happens here, stays here.</small></span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- S5: INSIDE THE ROOM ─────────────────────────────────── -->
+<section class="inside" id="inside">
+  <div class="inside-body">
+    <div class="c" style="padding:0;">
+      <span class="inside-lbl" id="inLbl">Inside The Room</span>
+      <h2 class="inside-hd" id="inHd">A real situation or decision.<br>A practitioner walks you through how they approach it.</h2>
+      <div class="stmts">
+        <div class="stmt" id="st1"><div class="stmt-dash"></div><p class="stmt-t">What they <em>notice</em>. What they <em>ignore</em>. Where they <em>focus</em>.</p></div>
+        <div class="stmt" id="st2"><div class="stmt-dash"></div><p class="stmt-t">You will be asked what you think.</p></div>
+        <div class="stmt" id="st3"><div class="stmt-dash"></div><p class="stmt-t">You will be challenged on it. You have to defend it.</p></div>
+        <div class="stmt" id="st4"><div class="stmt-dash"></div><p class="stmt-t">You will see where your reasoning holds — and where it doesn't.</p></div>
+        <div class="stmt" id="st5"><div class="stmt-dash"></div><p class="stmt-t">You don't leave with notes.</p></div>
+        <div class="stmt" id="st6"><div class="stmt-dash"></div><p class="stmt-t">You leave seeing your work differently.</p></div>
+      </div>
+      <div class="inside-foot" id="inFoot">
+        <div class="inside-foot-r"></div>
+        <p class="inside-foot-t">Not access to information. Access to how experienced professionals think.</p>
+        <div class="inside-foot-r"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S6: WHO ─────────────────────────────────────────────── -->
+<section class="who" id="who">
+  <div class="c">
+    <div class="who-intro">
+      <div class="who-bgnum" aria-hidden="true">02</div>
+      <span class="label" id="whoLbl">Who This Is For</span>
+      <h2 class="who-hd" id="whoHd">Not filtered by seniority.<br>Filtered by seriousness.</h2>
+    </div>
+  </div>
+  <div class="who-grid">
+    <div class="who-card" id="wc1">
+      <div class="who-card-top-bar"></div>
+      <span class="who-tag">Early career</span>
+      <h3 class="who-card-h">You've learned the models and frameworks.</h3>
+      <p class="who-card-p">But you know that's not enough. If you have a point of view, you will thrive. If you're still waiting for one, this is not your room yet.</p>
+    </div>
+    <div class="who-card" id="wc2">
+      <div class="who-card-top-bar"></div>
+      <span class="who-tag">Practitioners</span>
+      <h3 class="who-card-h">People who have spent years making real decisions.</h3>
+      <p class="who-card-p">Across cycles. Across situations. Not here to give a talk — but to show how they approach work to people who can engage at that level.</p>
+    </div>
+    <div class="who-card who-photo" id="wc3">
+      <div class="who-photo-grid" aria-hidden="true"></div>
+      <span class="who-photo-num" aria-hidden="true">The Room</span>
+      <p class="who-photo-cap">"Both paths arrive at the same table."</p>
+    </div>
+  </div>
+  <div class="who-foot">
+    <div class="who-foot-l">
+      <div class="who-foot-r"></div>
+      <p class="who-foot-t" id="whoQ">Both paths arrive at the same table.</p>
+      <div class="who-foot-r"></div>
+    </div>
+  </div>
+</section>
+
+<!-- S7: WHAT HAPPENS ────────────────────────────────────── -->
+<section class="happens" id="happens">
+  <div class="c">
+    <div class="happens-top">
+      <h2 class="happens-hd" id="hapHd">What happens<br>in the room.</h2>
+      <p class="happens-note" id="hapN">Built around public or hypothetical situations. Not access to information — access to how experienced professionals think.</p>
+    </div>
+  </div>
+  <div class="cmp-grid">
+    <div class="cmp-card" id="cc1"><span class="cmp-n">01</span><p class="cmp-before">Learn DCF through a course.</p><span class="cmp-vs">vs</span><p class="cmp-after">Build one with someone who has deployed capital.</p></div>
+    <div class="cmp-card" id="cc2"><span class="cmp-n">02</span><p class="cmp-before">Understand valuation in theory.</p><span class="cmp-vs">vs</span><p class="cmp-after">Work through how a banker prices a real company.</p></div>
+    <div class="cmp-card" id="cc3"><span class="cmp-n">03</span><p class="cmp-before">Read about difficult client conversations.</p><span class="cmp-vs">vs</span><p class="cmp-after">Learn from someone who has handled multiple market cycles.</p></div>
+  </div>
+  <div class="c"><div class="cmp-note" id="hapNote">
+    <span class="cmp-note-lbl">Note</span>
+    <p class="cmp-note-txt">Built around public or hypothetical situations. No confidential information shared.</p>
+  </div></div>
+</section>
+
+<!-- S8: FINAL CTA ──────────────────────────────────────── -->
+<section class="final" id="apply">
+  <div class="final-split">
+    <div class="final-photo">
+      <div class="final-photo-abstract" aria-hidden="true"></div>
+      <div class="final-photo-dots" aria-hidden="true"></div>
+      <div class="final-photo-lines" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <p class="final-photo-qt">"Two ways to build judgment.<br>One is faster."</p>
+    </div>
+    <div class="final-content">
+      <span class="label" id="fnLbl">Two ways to build judgment</span>
+      <h2 class="final-hd" id="fnHd">Learn slowly. Make mistakes. Figure it out over a decade.</h2>
+      <p class="final-sub" id="fnSub">Or spend two hours with someone who already has it.</p>
+      <p class="final-em" id="fnEm">Both paths work. One is faster.</p>
+      <div class="final-acts" id="fnActs">
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSeZWqYbJP-D4sZddwpGRSbjO6zInBgvFIyfDg8Gidaun9mTbw/viewform" target="_blank" rel="noopener" class="btn btn-blush mag"><span>Apply for Access</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER ──────────────────────────────────────────────── -->
+<footer class="foot">
+  <div class="foot-in">
+    <div><img src="logo.png" alt="The Finance Room" class="foot-logo-img"></div>
+    <div class="foot-meta">
+      <span>Mumbai</span><div class="foot-dot"></div>
+      <span>In person</span><div class="foot-dot"></div>
+      <span>By application only</span>
+    </div>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSeZWqYbJP-D4sZddwpGRSbjO6zInBgvFIyfDg8Gidaun9mTbw/viewform" target="_blank" rel="noopener" class="foot-link">Apply for Access</a>
+  </div>
+</footer>
+
+<!-- ════════════════════════════════════════════════════════
+     SCRIPT — runs after DOM is ready, libraries are deferred
+════════════════════════════════════════════════════════ -->
+<script>
+window.addEventListener('load', function () {
+
+  /* ── TICKER ─────────────────────────────────────────────── */
+  const words = ['Private','Invite-only','In person','Mumbai','By application only',
+                 'No recordings','Closed door','Two hours','Vetted group','One practitioner'];
+  const row = document.getElementById('tkRow');
+  if (row) {
+    const all = [...words,...words];
+    all.forEach((w,i) => {
+      const s=document.createElement('span'); s.className='t-word'; s.textContent=w; row.appendChild(s);
+      if(i<all.length-1){ const d=document.createElement('span'); d.className='t-sep'; d.textContent=' · '; row.appendChild(d); }
+    });
+  }
+
+  /* ── CURSOR ─────────────────────────────────────────────── */
+  const cur=document.getElementById('cur'), curR=document.getElementById('curR');
+  if (cur && curR) {
+    let mx=0,my=0,cx=0,cy=0,rx=0,ry=0,rafId;
+    document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;},{passive:true});
+    function cursorLoop(){
+      cx+=(mx-cx)*.2; cy+=(my-cy)*.2;
+      rx+=(mx-rx)*.08; ry+=(my-ry)*.08;
+      cur.style.transform=`translate(${cx-3.5}px,${cy-3.5}px)`;
+      curR.style.transform=`translate(${rx-17}px,${ry-17}px)`;
+      rafId=requestAnimationFrame(cursorLoop);
+    }
+    cursorLoop();
+  }
+
+  const hoverEls  = 'a,button,.not-card,.cmp-card,.who-card,.stmt,.room-li';
+  const clickEls  = '.btn,.nav-btn,a';
+  document.querySelectorAll(hoverEls).forEach(el=>{
+    el.addEventListener('mouseenter',()=>document.body.classList.add('ch'));
+    el.addEventListener('mouseleave',()=>document.body.classList.remove('ch'));
+  });
+  document.querySelectorAll(clickEls).forEach(el=>{
+    el.addEventListener('mouseenter',()=>{document.body.classList.add('cl');document.body.classList.remove('ch');});
+    el.addEventListener('mouseleave',()=>{document.body.classList.remove('cl');});
+  });
+
+  /* Light section cursor */
+  const lightSecs = document.querySelectorAll('.layers,.room,.who,.final');
+  function checkLight(){
+    let on=false;
+    lightSecs.forEach(s=>{const r=s.getBoundingClientRect();if(r.top<window.innerHeight*.5&&r.bottom>window.innerHeight*.5)on=true;});
+    document.body.classList.toggle('on-light',on);
+  }
+  window.addEventListener('scroll',checkLight,{passive:true});
+
+  /* ── NAV + PROGRESS + FLOAT CTA ─────────────────────────── */
+  const nav=document.getElementById('nav'), pb=document.getElementById('pb');
+  window.addEventListener('scroll',()=>{
+    const y=window.scrollY, total=document.body.scrollHeight-window.innerHeight;
+    nav.classList.toggle('scrolled',y>60);
+    pb.style.transform=`scaleX(${total>0?y/total:0})`;
+  },{passive:true});
+
+  /* ── SMOOTH ANCHOR ───────────────────────────────────────── */
+  document.querySelectorAll('a[href^="#"]').forEach(a=>{
+    a.addEventListener('click',e=>{
+      const id=a.getAttribute('href'); if(id==='#') return;
+      const t=document.querySelector(id); if(!t) return;
+      e.preventDefault();
+      if(window._lenis) window._lenis.scrollTo(t,{offset:-64,duration:1.4});
+      else t.scrollIntoView({behavior:'smooth'});
+    });
+  });
+
+  /* ── STOP IF NO GSAP ─────────────────────────────────────── */
+  if (typeof gsap === 'undefined') return;
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ── LENIS ───────────────────────────────────────────────── */
+  if (typeof Lenis !== 'undefined') {
+    const lenis = new Lenis({ duration:1.3, easing:t=>Math.min(1,1.001-Math.pow(2,-10*t)), smooth:true });
+    window._lenis = lenis;
+    gsap.ticker.add(t=>lenis.raf(t*1000));
+    gsap.ticker.lagSmoothing(0);
+    lenis.on('scroll',ScrollTrigger.update);
+  }
+
+  /* ════════════════════════════════════════════════════════
+     ANIMATION SYSTEM
+  ════════════════════════════════════════════════════════ */
+
+  /* Reveal: y + opacity, no blur — clean for body content */
+  function rise(els, trigger, opts={}) {
+    const t = typeof els==='string' ? gsap.utils.toArray(els) : [].concat(els);
+    if (!t.length) return;
+    gsap.from(t, {
+      opacity: 0, y: opts.y ?? 36,
+      duration: opts.dur ?? 0.78, stagger: opts.stagger ?? 0,
+      delay: opts.delay ?? 0, ease: opts.ease ?? 'power3.out',
+      scrollTrigger: { trigger: trigger||t[0], start: opts.start ?? 'top 88%', once: true }
+    });
+  }
+
+  /* Heading reveal: fast upward slide — distinct from body rise() */
+  function clip(els, trigger, opts={}) {
+    const t = typeof els==='string' ? gsap.utils.toArray(els) : [].concat(els);
+    if (!t.length) return;
+    gsap.from(t, {
+      opacity: 0, y: opts.y ?? 48,
+      duration: opts.dur ?? 0.85, stagger: opts.stagger ?? 0,
+      ease: 'power4.out',
+      scrollTrigger: { trigger: trigger||t[0], start: opts.start ?? 'top 86%', once: true }
+    });
+  }
+
+  /* Label: slides in from left */
+  function labelIn(el, trigger, delay=0) {
+    gsap.from(el, {
+      opacity: 0, x: -14, duration: 0.6, delay, ease: 'power2.out',
+      scrollTrigger: { trigger: trigger||el, start: 'top 90%', once: true }
+    });
+  }
+
+  /* Line draw: scaleX 0 → 1 */
+  function lineDraw(el, trigger, opts={}) {
+    gsap.from(el, {
+      scaleX: 0, transformOrigin: opts.origin ?? 'left',
+      duration: opts.dur ?? 0.9, delay: opts.delay ?? 0, ease: 'power3.inOut',
+      scrollTrigger: { trigger: trigger||el, start: 'top 88%', once: true }
+    });
+  }
+
+  /* Cards: stagger y + opacity only — no scale (avoids compositor thrash) */
+  function cards(els, trigger, opts={}) {
+    const t = typeof els==='string' ? gsap.utils.toArray(els) : [].concat(els);
+    if (!t.length) return;
+    gsap.from(t, {
+      opacity: 0, y: opts.y ?? 44,
+      duration: opts.dur ?? 0.78, stagger: opts.stagger ?? 0.1,
+      ease: 'power3.out',
+      scrollTrigger: { trigger: trigger||t[0], start: opts.start ?? 'top 86%', once: true }
+    });
+  }
+
+  /* ── LOADER SEQUENCE ─────────────────────────────────────── */
+  /* Lock hero content until loader exits */
+  gsap.set(['#hKick','#hw1','#hw2','#hw3','#hw4','#hFoot','.hero-scroll'], { opacity: 0 });
+  gsap.set('.ld-seam', { scaleX: 0 });
+  gsap.set(['.ld-logo','.ld-meta','.ld-dot'], { opacity: 0 });
+
+  const loaderTl = gsap.timeline({
+    onComplete() {
+      const el = document.getElementById('loader');
+      if (el) { el.style.pointerEvents = 'none'; el.style.visibility = 'hidden'; }
+      runHero();
+    }
+  });
+
+  loaderTl
+    /* 1 — seam line extends from center */
+    .to('.ld-seam',    { scaleX: 1, duration: 0.85, ease: 'power3.inOut' }, 0.25)
+    /* 2 — dots appear at ends */
+    .to('.ld-dot',     { opacity: 1, duration: 0.3, stagger: 0.05, ease: 'power2.out' }, 0.85)
+    /* 3 — logo rises from seam */
+    .to('.ld-logo',    { opacity: 1, y: 0, duration: 0.8, ease: 'power4.out' }, 1.0)
+    .from('.ld-logo',  { y: 22, filter: 'blur(8px)', duration: 0.8, ease: 'power4.out' }, 1.0)
+    .to('.ld-meta',    { opacity: 1, duration: 0.45 }, 1.6)
+    /* 4 — hold */
+    /* 5 — panels split open */
+    .to('.ld-panel-t', { yPercent: -100, duration: 1.05, ease: 'power4.inOut' }, 2.25)
+    .to('.ld-panel-b', { yPercent:  100, duration: 1.05, ease: 'power4.inOut' }, 2.25)
+    .to(['.ld-brand','.ld-seam','.ld-dot'], { opacity: 0, duration: 0.3, ease: 'power2.in' }, 2.25);
+
+  function runHero() {
+    /* Rings pulse in */
+    gsap.from(['.hbg-ring-a','.hbg-ring-b','.hbg-ring-c'], {
+      scale: 0.88, opacity: 0, duration: 1.4, stagger: 0.12,
+      ease: 'power3.out', transformOrigin: 'center center'
+    });
+    gsap.from(['.hbg-hline','.hbg-vline'], {
+      scaleX: 0, scaleY: 0, opacity: 0, duration: 1.0, stagger: 0.1,
+      ease: 'power3.out', transformOrigin: 'center'
+    });
+
+    gsap.set(['#hw1','#hw2','#hw3','#hw4'], { yPercent: 108 });
+
+    const ht = gsap.timeline({ delay: 0.1 });
+    ht
+      .fromTo('#hKick', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out', force3D: true })
+      .to(['#hw1','#hw2','#hw3','#hw4'], { yPercent: 0, opacity: 1, stagger: 0.13, duration: 0.95, ease: 'power4.out', force3D: true }, '-=0.3')
+      .fromTo('#hFoot', { opacity: 0, y: 32 }, { opacity: 1, y: 0, duration: 0.75, ease: 'power3.out', force3D: true }, '-=0.35')
+      .to('.hero-scroll', { opacity: 1, duration: 0.5 }, '-=0.3');
+  }
+
+  /* ── HERO RINGS PARALLAX (2 rings only — reduces compositor load) ── */
+  gsap.to('.hbg-geo', { yPercent: 18, ease:'none',
+    scrollTrigger:{ trigger:'.hero', start:'top top', end:'bottom top', scrub:true }});
+
+  /* ── S2: LAYERS ──────────────────────────────────────────── */
+  labelIn('#lyLbl', '#lyLbl');
+  clip('#lyHd', '#lyLbl', { stagger: 0, dur: 1.0 });
+  gsap.from(['#ly1','#ly2'], {
+    opacity: 0, y: 56, duration: 0.85, stagger: 0.14, ease: 'power3.out',
+    scrollTrigger: { trigger: '#ly1', start: 'top 86%', once: true }
+  });
+  /* Closing bar */
+  rise('#lyQ',   '#lyQ',   { y: 20, dur: 0.7 });
+
+  /* ── S3: WHAT THIS IS NOT ────────────────────────────────── */
+  /* Ghost text scales in */
+  gsap.from('#notG', {
+    opacity: 0, scale: 1.08, duration: 1.0, ease: 'power3.out',
+    scrollTrigger: { trigger: '#notG', start: 'top 90%', once: true }
+  });
+  clip('#notHd', '#notHd', { dur: 0.95 });
+  rise('#notD', '#notD', { y: 24, dur: 0.65, delay: 0.12 });
+  cards(['#nc1','#nc2','#nc3','#nc4'], '#nc1', { stagger: 0.09 });
+  rise('#notAns', '#notAns', { y: 28, dur: 0.7 });
+
+  /* ── S4: THE ROOM ────────────────────────────────────────── */
+  labelIn('#rmLbl', '#rmLbl');
+  clip('#rmHd', '#rmLbl', { dur: 0.9 });
+  gsap.from(['#ri1','#ri2','#ri3','#ri4','#ri5'], {
+    opacity: 0, x: -20, duration: 0.65, stagger: 0.1, ease: 'power2.out',
+    scrollTrigger: { trigger: '#ri1', start: 'top 88%', once: true }
+  });
+
+  /* ── S5: INSIDE THE ROOM ─────────────────────────────────── */
+  labelIn('#inLbl', '#inLbl');
+  clip('#inHd', '#inLbl', { dur: 0.95 });
+  gsap.from(['#st1','#st2','#st3','#st4','#st5','#st6'], {
+    opacity: 0, x: -18, duration: 0.6, stagger: 0.1, ease: 'power2.out',
+    scrollTrigger: { trigger: '#st1', start: 'top 88%', once: true }
+  });
+  /* Footer rule draws then text fades */
+  lineDraw('.inside-foot-r', '#inFoot');
+  rise('#inFoot p', '#inFoot', { y: 12, dur: 0.6, delay: 0.45 });
+
+  /* ── S6: WHO THIS IS FOR ─────────────────────────────────── */
+  labelIn('#whoLbl', '#whoLbl');
+  clip('#whoHd', '#whoLbl', { dur: 1.0 });
+  cards(['#wc1','#wc2','#wc3'], '#wc1', { stagger: 0.12, y: 60 });
+  rise('#whoQ',   '#whoQ',   { y: 18, dur: 0.65 });
+
+  /* ── S7: WHAT HAPPENS ────────────────────────────────────── */
+  clip('#hapHd', '#hapHd', { dur: 1.0 });
+  rise('#hapN', '#hapN', { y: 24, dur: 0.65, delay: 0.1 });
+  /* Cards rise with number counting */
+  gsap.from(['#cc1','#cc2','#cc3'], {
+    opacity: 0, y: 52, duration: 0.82, stagger: 0.12, ease: 'power3.out',
+    scrollTrigger: { trigger: '#cc1', start: 'top 86%', once: true }
+  });
+  rise('#hapNote', '#hapNote', { y: 20, dur: 0.65 });
+
+  /* ── S8: FINAL CTA ───────────────────────────────────────── */
+  labelIn('#fnLbl', '#fnLbl');
+  clip('#fnHd', '#fnLbl', { dur: 1.0 });
+  rise('#fnSub',  '#fnSub',  { y: 24, dur: 0.65, delay: 0.08 });
+  rise('#fnEm',   '#fnEm',   { y: 22, dur: 0.65, delay: 0.14 });
+  rise('#fnActs', '#fnActs', { y: 20, dur: 0.6,  delay: 0.22 });
+
+  /* ── MAGNETIC BUTTONS ────────────────────────────────────── */
+  document.querySelectorAll('.mag').forEach(el=>{
+    el.addEventListener('mousemove',e=>{
+      const r=el.getBoundingClientRect();
+      gsap.to(el,{x:(e.clientX-r.left-r.width/2)*.28,y:(e.clientY-r.top-r.height/2)*.28,duration:.4,ease:'power2.out'});
+    });
+    el.addEventListener('mouseleave',()=>gsap.to(el,{x:0,y:0,duration:.6,ease:'elastic.out(1,.4)'}));
+  });
+
+});
+</script>
+</body>
+</html>
