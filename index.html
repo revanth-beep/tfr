@@ -408,9 +408,93 @@ section[id] { scroll-margin-top: 80px; }
 @keyframes sdrop { 0%{top:-100%;opacity:.9} 100%{top:100%;opacity:0} }
 
 /* ════════════════════════════════════════════════════════
+   AMBIENT BACKGROUNDS — finance-themed floating elements
+════════════════════════════════════════════════════════ */
+.amb { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.amb svg { position: absolute; }
+
+/* Shared ambient keyframes — chaotic random paths */
+@keyframes finWander1 {
+  0%   { transform: translate(0,0) rotate(0deg); }
+  15%  { transform: translate(40px,-30px) rotate(5deg); }
+  35%  { transform: translate(-20px,-60px) rotate(-3deg); }
+  50%  { transform: translate(60px,-20px) rotate(7deg); }
+  70%  { transform: translate(-30px,25px) rotate(-5deg); }
+  85%  { transform: translate(20px,40px) rotate(2deg); }
+  100% { transform: translate(0,0) rotate(0deg); }
+}
+@keyframes finWander2 {
+  0%   { transform: translate(0,0) rotate(0deg); }
+  20%  { transform: translate(-50px,20px) rotate(-6deg); }
+  40%  { transform: translate(30px,50px) rotate(4deg); }
+  55%  { transform: translate(-40px,-30px) rotate(-8deg); }
+  75%  { transform: translate(50px,-10px) rotate(3deg); }
+  90%  { transform: translate(-10px,35px) rotate(-2deg); }
+  100% { transform: translate(0,0) rotate(0deg); }
+}
+@keyframes finWander3 {
+  0%   { transform: translate(0,0) rotate(0deg); }
+  18%  { transform: translate(35px,40px) rotate(4deg); }
+  33%  { transform: translate(-45px,10px) rotate(-6deg); }
+  52%  { transform: translate(15px,-50px) rotate(8deg); }
+  68%  { transform: translate(-25px,-20px) rotate(-4deg); }
+  82%  { transform: translate(55px,15px) rotate(5deg); }
+  100% { transform: translate(0,0) rotate(0deg); }
+}
+@keyframes finWander4 {
+  0%   { transform: translate(0,0) rotate(0deg); }
+  12%  { transform: translate(-30px,-45px) rotate(-5deg); }
+  30%  { transform: translate(45px,20px) rotate(7deg); }
+  48%  { transform: translate(-15px,55px) rotate(-3deg); }
+  65%  { transform: translate(40px,-35px) rotate(6deg); }
+  80%  { transform: translate(-50px,10px) rotate(-7deg); }
+  100% { transform: translate(0,0) rotate(0deg); }
+}
+@keyframes finWander5 {
+  0%   { transform: translate(0,0) rotate(0deg); }
+  22%  { transform: translate(50px,30px) rotate(-4deg); }
+  45%  { transform: translate(-35px,-40px) rotate(6deg); }
+  60%  { transform: translate(20px,50px) rotate(-8deg); }
+  78%  { transform: translate(-45px,-15px) rotate(3deg); }
+  100% { transform: translate(0,0) rotate(0deg); }
+}
+@keyframes finWander6 {
+  0%   { transform: translate(0,0) rotate(0deg); }
+  17%  { transform: translate(-40px,35px) rotate(5deg); }
+  38%  { transform: translate(25px,-45px) rotate(-7deg); }
+  55%  { transform: translate(50px,25px) rotate(4deg); }
+  72%  { transform: translate(-20px,-50px) rotate(-6deg); }
+  88%  { transform: translate(35px,40px) rotate(3deg); }
+  100% { transform: translate(0,0) rotate(0deg); }
+}
+
+/* ── Dark section finance elements (blush tones) ── */
+.amb-fin-dark svg { opacity:.3; stroke-width:.5 !important; }
+.amb-fin-dark svg rect { stroke-width:.5 !important; }
+.amb-fin-dark svg line { stroke-width:.4 !important; }
+.amb-fin-dark svg polyline { stroke-width:.7 !important; }
+.amb-fin-dark svg:nth-child(1) { left:5%;   top:10%;  width:90px; animation: finWander1 12s ease-in-out infinite; }
+.amb-fin-dark svg:nth-child(2) { right:10%; top:22%;  width:70px; animation: finWander2 16s ease-in-out 1s infinite; }
+.amb-fin-dark svg:nth-child(3) { left:25%;  top:55%;  width:80px; animation: finWander3 14s ease-in-out 3s infinite; }
+.amb-fin-dark svg:nth-child(4) { right:20%; top:68%;  width:75px; animation: finWander4 18s ease-in-out 2s infinite; }
+.amb-fin-dark svg:nth-child(5) { left:55%;  top:82%;  width:65px; animation: finWander5 11s ease-in-out 5s infinite; }
+.amb-fin-dark svg:nth-child(6) { right:35%; top:38%;  width:60px; animation: finWander6 15s ease-in-out 4s infinite; }
+
+/* ── Light section finance elements (navy tones) ── */
+.amb-fin-light svg { opacity:.25; stroke-width:.5 !important; }
+.amb-fin-light svg rect { stroke-width:.5 !important; }
+.amb-fin-light svg line { stroke-width:.4 !important; }
+.amb-fin-light svg polyline { stroke-width:.7 !important; }
+.amb-fin-light svg:nth-child(1) { left:8%;   top:12%;  width:85px; animation: finWander3 14s ease-in-out infinite; }
+.amb-fin-light svg:nth-child(2) { right:8%;  top:28%;  width:70px; animation: finWander5 12s ease-in-out 2s infinite; }
+.amb-fin-light svg:nth-child(3) { left:35%;  top:55%;  width:65px; animation: finWander1 16s ease-in-out 4s infinite; }
+.amb-fin-light svg:nth-child(4) { right:22%; top:72%;  width:60px; animation: finWander4 13s ease-in-out 1s infinite; }
+.amb-fin-light svg:nth-child(5) { left:15%;  top:85%;  width:70px; animation: finWander2 15s ease-in-out 3s infinite; }
+
+/* ════════════════════════════════════════════════════════
    S2 — TWO LAYERS
 ════════════════════════════════════════════════════════ */
-.layers { background: var(--cream); padding: 160px 0 0; overflow: hidden; }
+.layers { background: var(--cream); padding: 160px 0 0; overflow: hidden; position: relative; }
 
 .layers-intro { margin-bottom: 48px; position: relative; }
 /* Main section illustration — replaces decorative number */
@@ -494,7 +578,7 @@ section[id] { scroll-margin-top: 80px; }
 /* ════════════════════════════════════════════════════════
    S3 — WHAT THIS IS NOT
 ════════════════════════════════════════════════════════ */
-.not { background: var(--deep); padding: 160px 0 0; overflow: hidden; }
+.not { background: var(--deep); padding: 160px 0 0; overflow: hidden; position: relative; }
 
 .not-top { margin-bottom: 72px; position: relative; padding-top: clamp(56px, 9vw, 118px); }
 .not-ghost {
@@ -562,10 +646,10 @@ section[id] { scroll-margin-top: 80px; }
   grid-template-rows: auto 1fr;
   gap: 24px 96px; align-items: center;
 }
-/* Desktop: kicker + body + cta stack in right column, illo spans left column */
+/* Desktop: kicker + body + cta in right column, illo spans left column */
 .not-ans-q-wrap { grid-column: 2; grid-row: 1; }
-.not-ans-illo   { grid-column: 1; grid-row: 1 / 4; }
 .not-ans-body   { grid-column: 2; grid-row: 2; display: flex; flex-direction: column; gap: 40px; max-width: 560px; }
+.not-ans-illo   { grid-column: 1; grid-row: 1 / 4; }
 .not-ans-cta    { grid-column: 2; grid-row: 3; margin-top: 8px; }
 .not-ans-q {
   font-family: 'Instrument Serif', serif;
@@ -586,7 +670,9 @@ section[id] { scroll-margin-top: 80px; }
 /* Thought-map illustration */
 .not-ans-illo {
   pointer-events: none; user-select: none;
+  position: relative; z-index: 2;
 }
+.not-ans-q-wrap, .not-ans-body, .not-ans-cta { position: relative; z-index: 2; }
 .not-ans-illo svg { width: 100%; height: auto; display: block; max-width: 440px; margin: 0 0 0 auto; }
 
 /* Node breathing — scale + opacity */
@@ -633,7 +719,7 @@ section[id] { scroll-margin-top: 80px; }
 /* ════════════════════════════════════════════════════════
    S4 — THE ROOM (split)
 ════════════════════════════════════════════════════════ */
-.room { background: var(--cream); overflow: hidden; }
+.room { background: var(--cream); overflow: hidden; position: relative; }
 .room-split { display: grid; grid-template-columns: 4fr 6fr; min-height: 580px; }
 
 .room-photo {
@@ -761,7 +847,7 @@ section[id] { scroll-margin-top: 80px; }
 /* ════════════════════════════════════════════════════════
    S6 — WHO THIS IS FOR
 ════════════════════════════════════════════════════════ */
-.who { background: var(--cream2); padding: 140px 0 0; overflow: hidden; }
+.who { background: var(--cream2); padding: 140px 0 0; overflow: hidden; position: relative; }
 
 .who-intro {
   max-width: 1200px; margin: 0 auto; padding: 0 52px 64px;
@@ -838,7 +924,7 @@ section[id] { scroll-margin-top: 80px; }
 /* ════════════════════════════════════════════════════════
    S7 — WHAT HAPPENS
 ════════════════════════════════════════════════════════ */
-.happens { background: var(--navy); padding: 88px 0 0; overflow: hidden; }
+.happens { background: var(--navy); padding: 88px 0 0; overflow: hidden; position: relative; }
 .happens-top { margin-bottom: 64px; }
 .happens-hd {
   font-family: 'Bricolage Grotesque', sans-serif;
@@ -979,11 +1065,10 @@ section[id] { scroll-margin-top: 80px; }
   .happens-split{ grid-template-columns:1fr; }
   .happens-slow{ border-right:0; border-bottom:1px solid rgba(197,168,152,.1); }
   .not-answer{ grid-template-columns:1fr; grid-template-rows:auto; gap:28px; }
-  .not-ans-q-wrap{ grid-column:1; order:1; }
-  .not-ans-body{ grid-column:1; order:2; max-width:100%; }
-  .not-ans-illo{ grid-column:1; order:3; }
+  .not-ans-q-wrap, .not-ans-body, .not-ans-illo, .not-ans-cta { grid-column:1; grid-row:auto; }
+  .not-ans-body{ max-width:100%; }
   .not-ans-illo svg{ max-width:340px; margin:0 auto; }
-  .not-ans-cta{ grid-column:1; order:4; margin-top:0; }
+  .not-ans-cta{ margin-top:0; }
 }
 @media(max-width:860px){
   .c{ padding:0 24px; }
@@ -1021,11 +1106,11 @@ section[id] { scroll-margin-top: 80px; }
   .not-cards{ grid-template-columns:1fr 1fr; }
   .not-card{ padding:32px 24px 40px; }
   .not-answer{ grid-template-columns:1fr; grid-template-rows:auto; padding:52px 24px; gap:28px; }
-  .not-ans-q-wrap{ grid-column:1; order:1; }
-  .not-ans-body{ grid-column:1; order:2; max-width:100%; }
-  .not-ans-illo{ grid-column:1; order:3; max-width:320px; margin:0 auto; }
+  .not-ans-q-wrap, .not-ans-body, .not-ans-illo, .not-ans-cta { grid-column:1; grid-row:auto; }
+  .not-ans-body{ max-width:100%; }
+  .not-ans-illo{ max-width:320px; margin:0 auto; }
   .not-ans-illo svg{ max-width:320px; margin:0 auto; }
-  .not-ans-cta{ grid-column:1; order:4; margin-top:0; }
+  .not-ans-cta{ margin-top:0; }
   .not-ans-a{ font-size:clamp(24px,7vw,40px); }
 
   /* The Room */
@@ -1188,6 +1273,18 @@ section[id] { scroll-margin-top: 80px; }
 
 <!-- S2: TWO LAYERS ──────────────────────────────────────── -->
 <section class="layers" id="about">
+  <div class="amb amb-fin-light" aria-hidden="true">
+    <!-- Mini candlestick chart -->
+    <svg viewBox="0 0 40 30"><line x1="8" y1="4" x2="8" y2="26" stroke="rgba(11,22,40,.5)" stroke-width="1"/><rect x="5" y="8" width="6" height="10" fill="rgba(11,22,40,.4)"/><line x1="20" y1="6" x2="20" y2="24" stroke="rgba(11,22,40,.5)" stroke-width="1"/><rect x="17" y="10" width="6" height="8" fill="none" stroke="rgba(11,22,40,.4)" stroke-width="1"/><line x1="32" y1="2" x2="32" y2="28" stroke="rgba(11,22,40,.5)" stroke-width="1"/><rect x="29" y="6" width="6" height="14" fill="rgba(11,22,40,.4)"/></svg>
+    <!-- Mini line chart -->
+    <svg viewBox="0 0 40 20"><polyline points="2,16 10,10 18,14 26,6 34,12 38,4" fill="none" stroke="rgba(11,22,40,.5)" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <!-- Percentage -->
+    <svg viewBox="0 0 40 16"><text x="20" y="12" text-anchor="middle" font-size="10" font-family="DM Sans,sans-serif" fill="rgba(11,22,40,.5)" font-weight="600">+18%</text></svg>
+    <!-- Mini bar chart -->
+    <svg viewBox="0 0 36 24"><rect x="2" y="12" width="6" height="12" fill="rgba(11,22,40,.35)"/><rect x="10" y="6" width="6" height="18" fill="rgba(11,22,40,.45)"/><rect x="18" y="14" width="6" height="10" fill="rgba(11,22,40,.3)"/><rect x="26" y="4" width="6" height="20" fill="rgba(11,22,40,.4)"/></svg>
+    <!-- Currency -->
+    <svg viewBox="0 0 24 20"><text x="12" y="16" text-anchor="middle" font-size="14" font-family="DM Sans,sans-serif" fill="rgba(11,22,40,.4)" font-weight="300">₹</text></svg>
+  </div>
   <div class="c">
     <div class="layers-intro">
       <!-- Finance chart illustration: scrolling price line + animated bar chart -->
@@ -1271,6 +1368,20 @@ section[id] { scroll-margin-top: 80px; }
 
 <!-- S3: WHAT THIS IS NOT ─────────────────────────────────── -->
 <section class="not" id="format">
+  <div class="amb amb-fin-dark" aria-hidden="true">
+    <!-- Uptrend line -->
+    <svg viewBox="0 0 50 24"><polyline points="2,20 12,14 22,18 32,8 42,12 48,4" fill="none" stroke="#C5A898" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <!-- P/E label -->
+    <svg viewBox="0 0 30 14"><text x="15" y="11" text-anchor="middle" font-size="9" font-family="DM Sans,sans-serif" fill="#C5A898" font-weight="600" letter-spacing=".06em">P/E</text></svg>
+    <!-- Mini candlesticks -->
+    <svg viewBox="0 0 36 28"><line x1="8" y1="2" x2="8" y2="26" stroke="#C5A898" stroke-width=".8"/><rect x="5" y="6" width="6" height="12" fill="rgba(197,168,152,.5)"/><line x1="22" y1="4" x2="22" y2="24" stroke="#C5A898" stroke-width=".8"/><rect x="19" y="8" width="6" height="10" fill="none" stroke="rgba(197,168,152,.5)" stroke-width=".8"/><line x1="32" y1="6" x2="32" y2="22" stroke="#C5A898" stroke-width=".8"/><rect x="29" y="10" width="6" height="8" fill="rgba(197,168,152,.5)"/></svg>
+    <!-- IRR -->
+    <svg viewBox="0 0 32 14"><text x="16" y="11" text-anchor="middle" font-size="8" font-family="DM Sans,sans-serif" fill="#C5A898" font-weight="500" letter-spacing=".08em">IRR</text></svg>
+    <!-- Down percentage -->
+    <svg viewBox="0 0 40 14"><text x="20" y="11" text-anchor="middle" font-size="9" font-family="DM Sans,sans-serif" fill="#C5A898" font-weight="600">−3.8%</text></svg>
+    <!-- Mini bars -->
+    <svg viewBox="0 0 30 20"><rect x="2" y="10" width="5" height="10" fill="rgba(197,168,152,.4)"/><rect x="9" y="4" width="5" height="16" fill="rgba(197,168,152,.5)"/><rect x="16" y="8" width="5" height="12" fill="rgba(197,168,152,.35)"/><rect x="23" y="2" width="5" height="18" fill="rgba(197,168,152,.45)"/></svg>
+  </div>
   <div class="c">
     <div class="not-top">
       <p class="not-ghost" id="notG" aria-hidden="true">THE FORMAT</p>
@@ -1310,6 +1421,9 @@ section[id] { scroll-margin-top: 80px; }
   <div class="not-answer" id="notAns">
     <div class="not-ans-q-wrap">
       <p class="not-ans-q">A working session. One question.</p>
+    </div>
+    <div class="not-ans-body">
+      <p class="not-ans-a">How does an experienced practitioner <em>actually think?</em></p>
     </div>
     <!-- Thought-map: how a practitioner's mind connects concepts -->
     <div class="not-ans-illo" aria-hidden="true">
@@ -1396,10 +1510,6 @@ section[id] { scroll-margin-top: 80px; }
 
       </svg>
     </div>
-
-    <div class="not-ans-body">
-      <p class="not-ans-a">How does an experienced practitioner <em>actually think?</em></p>
-    </div>
     <div class="not-ans-cta">
       <a href="https://form.typeform.com/to/XuNVBwSj" target="_blank" rel="noopener" class="btn btn-blush mag"><span>Apply for Access</span></a>
     </div>
@@ -1408,6 +1518,13 @@ section[id] { scroll-margin-top: 80px; }
 
 <!-- S4: THE ROOM ────────────────────────────────────────── -->
 <section class="room" id="the-room">
+  <div class="amb amb-fin-light" aria-hidden="true">
+    <svg viewBox="0 0 50 20"><polyline points="2,18 14,8 26,14 38,4 48,10" fill="none" stroke="rgba(11,22,40,.5)" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <svg viewBox="0 0 28 14"><text x="14" y="11" text-anchor="middle" font-size="8" font-family="DM Sans,sans-serif" fill="rgba(11,22,40,.45)" font-weight="600" letter-spacing=".08em">DCF</text></svg>
+    <svg viewBox="0 0 40 14"><text x="20" y="11" text-anchor="middle" font-size="9" font-family="DM Sans,sans-serif" fill="rgba(11,22,40,.4)" font-weight="600">+12%</text></svg>
+    <svg viewBox="0 0 30 22"><rect x="2" y="10" width="5" height="12" fill="rgba(11,22,40,.3)"/><rect x="9" y="4" width="5" height="18" fill="rgba(11,22,40,.4)"/><rect x="16" y="8" width="5" height="14" fill="rgba(11,22,40,.3)"/><rect x="23" y="2" width="5" height="20" fill="rgba(11,22,40,.35)"/></svg>
+    <svg viewBox="0 0 24 20"><text x="12" y="16" text-anchor="middle" font-size="14" font-family="DM Sans,sans-serif" fill="rgba(11,22,40,.35)" font-weight="300">$</text></svg>
+  </div>
   <div class="room-split">
     <div class="room-photo">
       <img src="room.jpg" alt="An intimate, private meeting room" class="room-photo-img" loading="lazy">
@@ -1431,6 +1548,14 @@ section[id] { scroll-margin-top: 80px; }
 
 <!-- S5: INSIDE THE ROOM ─────────────────────────────────── -->
 <section class="inside" id="inside">
+  <div class="amb amb-fin-dark" aria-hidden="true">
+    <svg viewBox="0 0 44 20"><polyline points="2,16 10,8 20,14 30,4 42,10" fill="none" stroke="#C5A898" stroke-width="1.2" stroke-linecap="round"/></svg>
+    <svg viewBox="0 0 36 14"><text x="18" y="11" text-anchor="middle" font-size="8" font-family="DM Sans,sans-serif" fill="#C5A898" font-weight="600" letter-spacing=".1em">EBITDA</text></svg>
+    <svg viewBox="0 0 40 14"><text x="20" y="11" text-anchor="middle" font-size="9" font-family="DM Sans,sans-serif" fill="#C5A898" font-weight="600">+9.6%</text></svg>
+    <svg viewBox="0 0 30 14"><text x="15" y="11" text-anchor="middle" font-size="9" font-family="DM Sans,sans-serif" fill="#C5A898" font-weight="500" letter-spacing=".06em">LBO</text></svg>
+    <svg viewBox="0 0 36 26"><line x1="6" y1="2" x2="6" y2="24" stroke="#C5A898" stroke-width=".8"/><rect x="3" y="6" width="6" height="10" fill="rgba(197,168,152,.45)"/><line x1="18" y1="4" x2="18" y2="22" stroke="#C5A898" stroke-width=".8"/><rect x="15" y="8" width="6" height="8" fill="none" stroke="rgba(197,168,152,.4)" stroke-width=".8"/><line x1="30" y1="6" x2="30" y2="20" stroke="#C5A898" stroke-width=".8"/><rect x="27" y="10" width="6" height="6" fill="rgba(197,168,152,.45)"/></svg>
+    <svg viewBox="0 0 24 20"><text x="12" y="16" text-anchor="middle" font-size="13" font-family="DM Sans,sans-serif" fill="#C5A898" font-weight="300">%</text></svg>
+  </div>
   <div class="inside-body">
     <div class="c" style="padding:0;">
       <span class="inside-lbl" id="inLbl">Inside The Room</span>
@@ -1457,6 +1582,13 @@ section[id] { scroll-margin-top: 80px; }
 
 <!-- S6: WHO ─────────────────────────────────────────────── -->
 <section class="who" id="who">
+  <div class="amb amb-fin-light" aria-hidden="true">
+    <svg viewBox="0 0 50 22"><polyline points="2,20 12,12 22,16 34,6 48,8" fill="none" stroke="rgba(11,22,40,.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
+    <svg viewBox="0 0 32 14"><text x="16" y="11" text-anchor="middle" font-size="8" font-family="DM Sans,sans-serif" fill="rgba(11,22,40,.45)" font-weight="600" letter-spacing=".08em">NAV</text></svg>
+    <svg viewBox="0 0 40 14"><text x="20" y="11" text-anchor="middle" font-size="9" font-family="DM Sans,sans-serif" fill="rgba(11,22,40,.4)" font-weight="600">+24%</text></svg>
+    <svg viewBox="0 0 30 20"><rect x="4" y="10" width="5" height="10" fill="rgba(11,22,40,.3)"/><rect x="11" y="4" width="5" height="16" fill="rgba(11,22,40,.4)"/><rect x="18" y="12" width="5" height="8" fill="rgba(11,22,40,.25)"/><rect x="25" y="6" width="5" height="14" fill="rgba(11,22,40,.35)"/></svg>
+    <svg viewBox="0 0 24 20"><text x="12" y="16" text-anchor="middle" font-size="14" font-family="DM Sans,sans-serif" fill="rgba(11,22,40,.35)" font-weight="300">₹</text></svg>
+  </div>
   <div class="who-intro">
     <!-- Illustration: a door ajar with warm light — exclusivity -->
     <div class="who-illo" aria-hidden="true">
@@ -1528,6 +1660,14 @@ section[id] { scroll-margin-top: 80px; }
 
 <!-- S7: WHAT HAPPENS ────────────────────────────────────── -->
 <section class="happens" id="happens">
+  <div class="amb amb-fin-dark" aria-hidden="true">
+    <svg viewBox="0 0 44 22"><polyline points="2,18 10,10 20,16 30,6 42,12" fill="none" stroke="#C5A898" stroke-width="1.2" stroke-linecap="round"/></svg>
+    <svg viewBox="0 0 36 14"><text x="18" y="11" text-anchor="middle" font-size="8" font-family="DM Sans,sans-serif" fill="#C5A898" font-weight="600" letter-spacing=".1em">WACC</text></svg>
+    <svg viewBox="0 0 40 14"><text x="20" y="11" text-anchor="middle" font-size="9" font-family="DM Sans,sans-serif" fill="#C5A898" font-weight="600">12.4x</text></svg>
+    <svg viewBox="0 0 30 14"><text x="15" y="11" text-anchor="middle" font-size="9" font-family="DM Sans,sans-serif" fill="#C5A898" font-weight="500" letter-spacing=".06em">EV</text></svg>
+    <svg viewBox="0 0 36 26"><line x1="8" y1="4" x2="8" y2="22" stroke="#C5A898" stroke-width=".8"/><rect x="5" y="8" width="6" height="10" fill="rgba(197,168,152,.4)"/><line x1="20" y1="2" x2="20" y2="24" stroke="#C5A898" stroke-width=".8"/><rect x="17" y="6" width="6" height="12" fill="rgba(197,168,152,.45)"/><line x1="32" y1="6" x2="32" y2="20" stroke="#C5A898" stroke-width=".8"/><rect x="29" y="10" width="6" height="6" fill="none" stroke="rgba(197,168,152,.4)" stroke-width=".8"/></svg>
+    <svg viewBox="0 0 24 20"><text x="12" y="16" text-anchor="middle" font-size="14" font-family="DM Sans,sans-serif" fill="#C5A898" font-weight="300">$</text></svg>
+  </div>
   <div class="c">
     <div class="happens-top">
       <h2 class="happens-hd" id="hapHd">What happens<br>in the room.</h2>
@@ -1584,7 +1724,14 @@ section[id] { scroll-margin-top: 80px; }
 </section>
 
 <!-- S8: FINAL CTA ──────────────────────────────────────── -->
-<section class="final" id="apply">
+<section class="final" id="apply" style="position:relative;">
+  <div class="amb amb-fin-light" aria-hidden="true">
+    <svg viewBox="0 0 50 20"><polyline points="2,16 14,6 26,12 38,2 48,8" fill="none" stroke="rgba(11,22,40,.5)" stroke-width="1.2" stroke-linecap="round"/></svg>
+    <svg viewBox="0 0 36 14"><text x="18" y="11" text-anchor="middle" font-size="8" font-family="DM Sans,sans-serif" fill="rgba(11,22,40,.45)" font-weight="600" letter-spacing=".1em">ALPHA</text></svg>
+    <svg viewBox="0 0 40 14"><text x="20" y="11" text-anchor="middle" font-size="9" font-family="DM Sans,sans-serif" fill="rgba(11,22,40,.4)" font-weight="600">+32%</text></svg>
+    <svg viewBox="0 0 30 22"><rect x="4" y="12" width="5" height="10" fill="rgba(11,22,40,.3)"/><rect x="11" y="6" width="5" height="16" fill="rgba(11,22,40,.4)"/><rect x="18" y="10" width="5" height="12" fill="rgba(11,22,40,.3)"/><rect x="25" y="2" width="5" height="20" fill="rgba(11,22,40,.35)"/></svg>
+    <svg viewBox="0 0 24 20"><text x="12" y="16" text-anchor="middle" font-size="14" font-family="DM Sans,sans-serif" fill="rgba(11,22,40,.35)" font-weight="300">₹</text></svg>
+  </div>
   <div class="final-inner">
     <h2 class="final-hd" id="fnHd">Both paths build <em>judgment.</em><br>One is faster.</h2>
     <p class="final-sub" id="fnSub">Two hours with someone who has already built it.</p>
@@ -1852,8 +1999,12 @@ window.addEventListener('load', function () {
   });
   gsap.fromTo('.not-ans-a', { scale:0.15 }, { scale:1, ease:'none',
     scrollTrigger:{ trigger:'.not-ans-a', start:'top 105%', end:'top 40%', scrub:true }});
-  gsap.to('.not-ans-illo', { yPercent:-25, rotation:4, ease:'none',
-    scrollTrigger:{ trigger:'#notAns', start:'top bottom', end:'bottom top', scrub:true }});
+  ScrollTrigger.matchMedia({
+    '(min-width:861px)': function() {
+      gsap.to('.not-ans-illo', { yPercent:-25, rotation:4, ease:'none',
+        scrollTrigger:{ trigger:'#notAns', start:'top bottom', end:'bottom top', scrub:true }});
+    }
+  });
 
   /* ════════════════════════════════════════════════════════
      S4: THE ROOM — deep image parallax + cascade list
