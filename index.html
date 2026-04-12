@@ -1032,15 +1032,23 @@ section[id] { scroll-margin-top: 80px; }
   font-family: 'Instrument Serif', serif;
   font-style: italic; font-weight: 400; color: var(--blush);
 }
-.final-sub {
-  font-family: 'DM Sans', sans-serif;
-  font-size: clamp(17px, 1.8vw, 22px); font-weight: 300;
-  color: rgba(11,22,40,.6); line-height: 1.65; margin-bottom: 12px;
-  max-width: 520px; margin-left: auto; margin-right: auto;
+.final-slow {
+  font-size: clamp(16px, 1.6vw, 20px); font-weight: 400;
+  color: rgba(11,22,40,.45); line-height: 1.7; margin-bottom: 20px;
 }
-.final-meta {
-  font-size: 12px; font-weight: 500; letter-spacing: .2em; text-transform: uppercase;
-  color: rgba(11,22,40,.4); margin-bottom: 48px;
+.final-or {
+  font-family: 'Instrument Serif', serif; font-style: italic;
+  font-size: clamp(18px, 2vw, 26px); font-weight: 400;
+  color: rgba(11,22,40,.72); line-height: 1.5; margin-bottom: 28px;
+}
+.final-punch {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(26px, 3.5vw, 46px); font-weight: 700;
+  color: var(--navy); line-height: 1.1; margin-bottom: 48px;
+  letter-spacing: -.02em;
+}
+.final-punch strong {
+  font-weight: 800; color: var(--blush);
 }
 .final-acts { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
 
@@ -1181,7 +1189,8 @@ section[id] { scroll-margin-top: 80px; }
 
   /* Final */
   .final-hd{ font-size:clamp(24px,7.5vw,36px); }
-  .final-sub{ font-size:16px; }
+  .final-slow{ font-size:15px; }
+  .final-or{ font-size:17px; }
 }
 
 /* Hide custom cursor on touch/mobile devices */
@@ -1718,7 +1727,7 @@ section[id] { scroll-margin-top: 80px; }
   <div class="c">
     <div class="cmp-note" id="hapNote">
       <span class="cmp-note-lbl">Note</span>
-      <p class="cmp-note-txt">Built around public or hypothetical situations. No confidential information shared.</p>
+      <p class="cmp-note-txt">Built around public or hypothetical situations. No confidential information. Not access to information — access to how experienced professionals think.</p>
     </div>
   </div>
 </section>
@@ -1733,9 +1742,10 @@ section[id] { scroll-margin-top: 80px; }
     <svg viewBox="0 0 24 20"><text x="12" y="16" text-anchor="middle" font-size="14" font-family="DM Sans,sans-serif" fill="rgba(11,22,40,.35)" font-weight="300">₹</text></svg>
   </div>
   <div class="final-inner">
-    <h2 class="final-hd" id="fnHd">Both paths build <em>judgment.</em><br>One is faster.</h2>
-    <p class="final-sub" id="fnSub">Two hours with someone who has already built it.</p>
-    <p class="final-meta" id="fnMeta">Mumbai · In person · By application only</p>
+    <h2 class="final-hd" id="fnHd">Two ways to build <em>judgment.</em></h2>
+    <p class="final-slow" id="fnSlow">Learn slowly. Make mistakes.<br>Figure it out over a decade.</p>
+    <p class="final-or" id="fnOr">Or spend two hours with someone who already has it.</p>
+    <p class="final-punch" id="fnPunch">Both paths work. <strong>One is faster.</strong></p>
     <div class="final-acts" id="fnActs">
       <a href="https://form.typeform.com/to/XuNVBwSj" target="_blank" rel="noopener" class="btn btn-blush mag"><span>Apply for Access</span></a>
     </div>
@@ -2070,13 +2080,23 @@ window.addEventListener('load', function () {
   rise('#hapNote', '#hapNote', { y:28, dur:0.7 });
 
   /* ════════════════════════════════════════════════════════
-     S8: FINAL CTA — scale in from vanishing point
+     S8: FINAL CTA — dramatic staggered reveal
   ════════════════════════════════════════════════════════ */
+  /* "Two ways to build judgment" — zooms in from vanishing point */
   gsap.fromTo('#fnHd', { scale:0.1, rotation:-5 }, { scale:1, rotation:0, ease:'none',
     scrollTrigger:{ trigger:'#fnHd', start:'top 105%', end:'top 40%', scrub:true }});
-  rise('#fnSub',  '#fnHd',  { y:40, dur:0.8, delay:0.12 });
-  rise('#fnMeta', '#fnHd', { y:24, dur:0.6, delay:0.2 });
-  rise('#fnActs', '#fnHd', { y:24, dur:0.6, delay:0.28 });
+  /* "Learn slowly..." — slides in from left, faded */
+  gsap.from('#fnSlow', { x:-200, opacity:0, duration:1.0, ease:'power4.out',
+    scrollTrigger:{ trigger:'#fnSlow', start:'top 95%', once:true }});
+  /* "Or spend two hours..." — slides in from right, opposite direction */
+  gsap.from('#fnOr', { x:200, opacity:0, duration:1.0, ease:'power4.out',
+    scrollTrigger:{ trigger:'#fnOr', start:'top 95%', once:true }});
+  /* "Both paths work. One is faster." — scales up from small, the punchline */
+  gsap.fromTo('#fnPunch', { scale:0.4, opacity:0 }, { scale:1, opacity:1, ease:'none',
+    scrollTrigger:{ trigger:'#fnPunch', start:'top 100%', end:'top 55%', scrub:true }});
+  /* Button — rises up */
+  gsap.from('#fnActs', { y:40, opacity:0, duration:0.8, ease:'power3.out',
+    scrollTrigger:{ trigger:'#fnActs', start:'top 95%', once:true }});
 
   /* ── MAGNETIC BUTTONS ────────────────────────────────────── */
   document.querySelectorAll('.mag').forEach(el=>{
