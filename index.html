@@ -363,6 +363,7 @@ section[id] { scroll-margin-top: 80px; }
   color: #fff;
   margin-bottom: 0;
 }
+.hero-hd { will-change: transform; }
 .hero-hd .wl { display: block; overflow: hidden; }
 .hero-hd .wi { display: block; will-change: transform; }
 .hero-hd .blush { color: var(--blush2); }
@@ -837,7 +838,7 @@ section[id] { scroll-margin-top: 80px; }
 /* ════════════════════════════════════════════════════════
    S7 — WHAT HAPPENS
 ════════════════════════════════════════════════════════ */
-.happens { background: var(--navy); padding: 88px 0 0; }
+.happens { background: var(--navy); padding: 88px 0 0; overflow: hidden; }
 .happens-top { margin-bottom: 64px; }
 .happens-hd {
   font-family: 'Bricolage Grotesque', sans-serif;
@@ -1808,65 +1809,123 @@ window.addEventListener('load', function () {
       .to('.hero-scroll', { opacity: 1, duration: 0.5 }, '-=0.3');
   }
 
-  /* ── HERO RINGS PARALLAX (2 rings only — reduces compositor load) ── */
-  gsap.to('.hbg-geo', { yPercent: 18, ease:'none',
+  /* ════════════════════════════════════════════════════════
+     HERO — SCALE-OUT explosion on scroll away
+  ════════════════════════════════════════════════════════ */
+  gsap.to('.hbg-geo', { yPercent:60, scale:1.8, ease:'none',
     scrollTrigger:{ trigger:'.hero', start:'top top', end:'bottom top', scrub:true }});
+  gsap.to('#heroHd', { scale:3.5, yPercent:-20, ease:'none',
+    scrollTrigger:{ trigger:'.hero', start:'30% top', end:'90% top', scrub:true }});
+  gsap.to('#hFoot', { yPercent:200, ease:'none',
+    scrollTrigger:{ trigger:'.hero', start:'20% top', end:'80% top', scrub:true }});
+  gsap.to('#hKick', { yPercent:-250, scale:0.3, ease:'none',
+    scrollTrigger:{ trigger:'.hero', start:'25% top', end:'80% top', scrub:true }});
 
-  /* ── S2: LAYERS ──────────────────────────────────────────── */
-  clip('#lyHd', '#lyHd', { stagger: 0, dur: 1.0 });
-  gsap.from(['#ly1','#ly2'], {
-    opacity: 0, y: 56, duration: 0.85, stagger: 0.14, ease: 'power3.out',
-    scrollTrigger: { trigger: '#ly1', start: 'top 86%', once: true }
+  /* ════════════════════════════════════════════════════════
+     S2: LAYERS — horizontal slide + 3D cards
+  ════════════════════════════════════════════════════════ */
+  gsap.fromTo('#lyHd', { x:400, rotation:5 }, { x:0, rotation:0, ease:'none',
+    scrollTrigger:{ trigger:'#lyHd', start:'top 105%', end:'top 45%', scrub:true }});
+  gsap.set('.layers-grid', { perspective:800 });
+  gsap.from('#ly1', { opacity:0, rotationY:35, x:-150, duration:1.2, ease:'power3.out', transformOrigin:'right center',
+    scrollTrigger:{ trigger:'#ly1', start:'top 92%', once:true }});
+  gsap.from('#ly2', { opacity:0, rotationY:-35, x:150, duration:1.2, ease:'power3.out', transformOrigin:'left center',
+    scrollTrigger:{ trigger:'#ly2', start:'top 92%', once:true }});
+  rise('#lyQ', '#lyQ', { y:40, dur:0.8 });
+
+  /* ════════════════════════════════════════════════════════
+     S3: WHAT THIS IS NOT — counter-scroll ghost, 3D cards, clip-path wipe
+  ════════════════════════════════════════════════════════ */
+  gsap.to('#notG', { xPercent:50, yPercent:-30, scale:2.0, ease:'none',
+    scrollTrigger:{ trigger:'.not', start:'top bottom', end:'bottom top', scrub:true }});
+  gsap.fromTo('#notHd',
+    { clipPath:'inset(0 100% 0 0)' },
+    { clipPath:'inset(0 0% 0 0)', ease:'none',
+    scrollTrigger:{ trigger:'#notHd', start:'top 90%', end:'top 50%', scrub:true }});
+  gsap.set('.not-cards', { perspective:1000 });
+  gsap.utils.toArray(['#nc1','#nc2','#nc3','#nc4']).forEach((el,i) => {
+    gsap.from(el, {
+      opacity:0, y:120, rotationX:25, scale:0.6,
+      duration:1.2, delay:i*0.12, ease:'power4.out', transformOrigin:'bottom center',
+      scrollTrigger:{ trigger:'#nc1', start:'top 94%', once:true }
+    });
   });
-  /* Closing bar */
-  rise('#lyQ',   '#lyQ',   { y: 20, dur: 0.7 });
+  gsap.fromTo('.not-ans-a', { scale:0.15 }, { scale:1, ease:'none',
+    scrollTrigger:{ trigger:'.not-ans-a', start:'top 105%', end:'top 40%', scrub:true }});
+  gsap.to('.not-ans-illo', { yPercent:-25, rotation:4, ease:'none',
+    scrollTrigger:{ trigger:'#notAns', start:'top bottom', end:'bottom top', scrub:true }});
 
-  /* ── S3: WHAT THIS IS NOT ────────────────────────────────── */
-  /* Ghost text scales in */
-  gsap.from('#notG', {
-    opacity: 0, scale: 1.08, duration: 1.0, ease: 'power3.out',
-    scrollTrigger: { trigger: '#notG', start: 'top 90%', once: true }
-  });
-  clip('#notHd', '#notHd', { dur: 0.95 });
-  cards(['#nc1','#nc2','#nc3','#nc4'], '#nc1', { stagger: 0.09 });
-  rise('#notAns', '#notAns', { y: 28, dur: 0.7 });
-
-  /* ── S4: THE ROOM ────────────────────────────────────────── */
+  /* ════════════════════════════════════════════════════════
+     S4: THE ROOM — deep image parallax + cascade list
+  ════════════════════════════════════════════════════════ */
+  gsap.fromTo('.room-photo-img', { yPercent:-20, scale:1.35 }, { yPercent:20, scale:1.08, ease:'none',
+    scrollTrigger:{ trigger:'.room', start:'top bottom', end:'bottom top', scrub:true }});
   labelIn('#rmLbl', '#rmLbl');
-  clip('#rmHd', '#rmLbl', { dur: 0.9 });
-  gsap.from(['#ri1','#ri2','#ri3','#ri4','#ri5'], {
-    opacity: 0, x: -20, duration: 0.65, stagger: 0.1, ease: 'power2.out',
-    scrollTrigger: { trigger: '#ri1', start: 'top 88%', once: true }
+  gsap.from('#rmHd', { y:100, opacity:0, rotation:-3, duration:1.1, ease:'power4.out',
+    scrollTrigger:{ trigger:'#rmHd', start:'top 94%', once:true }});
+  gsap.utils.toArray(['#ri1','#ri2','#ri3','#ri4','#ri5']).forEach((el,i) => {
+    gsap.from(el, {
+      opacity:0, x:-120, scaleX:0.7,
+      duration:0.8, delay:i*0.13, ease:'power3.out', transformOrigin:'left center',
+      scrollTrigger:{ trigger:'#ri1', start:'top 90%', once:true }
+    });
   });
 
-  /* ── S5: INSIDE THE ROOM ─────────────────────────────────── */
+  /* ════════════════════════════════════════════════════════
+     S5: INSIDE — clip-path typewriter + heading horizontal slide
+  ════════════════════════════════════════════════════════ */
   labelIn('#inLbl', '#inLbl');
-  clip('#inHd', '#inLbl', { dur: 0.95 });
-  gsap.from(['#st1','#st2','#st3','#st4','#st5','#st6'], {
-    opacity: 0, x: -18, duration: 0.6, stagger: 0.1, ease: 'power2.out',
-    scrollTrigger: { trigger: '#st1', start: 'top 88%', once: true }
+  gsap.fromTo('#inHd', { x:-300 }, { x:0, ease:'none',
+    scrollTrigger:{ trigger:'#inHd', start:'top 100%', end:'top 55%', scrub:true }});
+  gsap.utils.toArray(['#st1','#st2','#st3','#st4','#st5','#st6']).forEach((el,i) => {
+    gsap.fromTo(el,
+      { clipPath:'inset(0 100% 0 0)' },
+      { clipPath:'inset(0 0% 0 0)',
+      duration:0.9, delay:i*0.13, ease:'power3.out',
+      scrollTrigger:{ trigger:'#st1', start:'top 87%', once:true }
+    });
   });
-  /* Footer rule draws then text fades */
   lineDraw('.inside-foot-r', '#inFoot');
-  rise('#inFoot p', '#inFoot', { y: 12, dur: 0.6, delay: 0.45 });
+  rise('#inFoot p', '#inFoot', { y:16, dur:0.6, delay:0.45 });
 
-  /* ── S6: WHO THIS IS FOR ─────────────────────────────────── */
-  clip('#whoHd', '#whoHd', { dur: 1.0 });
-  rise('#whoSub', '#whoHd', { y: 18, dur: 0.65, delay: 0.1 });
-  cards(['#wc1','#wc2'], '#wc1', { stagger: 0.12, y: 60 });
-  rise('#whoQ',   '#whoQ',   { y: 18, dur: 0.65 });
+  /* ════════════════════════════════════════════════════════
+     S6: WHO — slide from right + 3D card flip
+  ════════════════════════════════════════════════════════ */
+  gsap.fromTo('#whoHd', { x:350 }, { x:0, ease:'none',
+    scrollTrigger:{ trigger:'#whoHd', start:'top 100%', end:'top 50%', scrub:true }});
+  rise('#whoSub', '#whoHd', { y:28, dur:0.7, delay:0.1 });
+  gsap.to('.who-illo', { yPercent:-40, rotation:-6, ease:'none',
+    scrollTrigger:{ trigger:'.who', start:'top bottom', end:'bottom top', scrub:true }});
+  gsap.set('.who-grid', { perspective:900 });
+  gsap.utils.toArray(['#wc1','#wc2']).forEach((el,i) => {
+    gsap.from(el, {
+      opacity:0, rotationX:30, y:120, scale:0.75,
+      duration:1.1, delay:i*0.16, ease:'power4.out', transformOrigin:'top center',
+      scrollTrigger:{ trigger:'#wc1', start:'top 94%', once:true }
+    });
+  });
+  rise('#whoQ', '#whoQ', { y:28, dur:0.7 });
 
-  /* ── S7: WHAT HAPPENS ────────────────────────────────────── */
-  clip('#hapHd', '#hapHd', { dur: 1.0 });
-  rise('.happens-slow', '.happens-slow', { y: 32, dur: 0.75 });
-  rise('#hapFast', '#hapFast', { y: 32, dur: 0.85, delay: 0.12 });
-  rise('#hapNote', '#hapNote', { y: 20, dur: 0.65 });
+  /* ════════════════════════════════════════════════════════
+     S7: WHAT HAPPENS — 3D panels swing open
+  ════════════════════════════════════════════════════════ */
+  gsap.fromTo('#hapHd', { scale:3.0 }, { scale:1, ease:'none',
+    scrollTrigger:{ trigger:'#hapHd', start:'top 105%', end:'top 45%', scrub:true }});
+  gsap.set('.happens-split', { perspective:800 });
+  gsap.from('.happens-slow', { opacity:0, rotationY:45, x:-120, duration:1.2, ease:'power3.out', transformOrigin:'right center',
+    scrollTrigger:{ trigger:'.happens-split', start:'top 90%', once:true }});
+  gsap.from('.happens-fast', { opacity:0, rotationY:-45, x:120, duration:1.2, delay:0.1, ease:'power3.out', transformOrigin:'left center',
+    scrollTrigger:{ trigger:'.happens-split', start:'top 90%', once:true }});
+  rise('#hapNote', '#hapNote', { y:28, dur:0.7 });
 
-  /* ── S8: FINAL CTA ───────────────────────────────────────── */
-  clip('#fnHd', '#fnHd', { dur: 1.0 });
-  rise('#fnSub',  '#fnHd',  { y: 20, dur: 0.65, delay: 0.12 });
-  rise('#fnMeta', '#fnHd', { y: 14, dur: 0.5, delay: 0.18 });
-  rise('#fnActs', '#fnHd', { y: 16, dur: 0.55, delay: 0.24 });
+  /* ════════════════════════════════════════════════════════
+     S8: FINAL CTA — scale in from vanishing point
+  ════════════════════════════════════════════════════════ */
+  gsap.fromTo('#fnHd', { scale:0.1, rotation:-5 }, { scale:1, rotation:0, ease:'none',
+    scrollTrigger:{ trigger:'#fnHd', start:'top 105%', end:'top 40%', scrub:true }});
+  rise('#fnSub',  '#fnHd',  { y:40, dur:0.8, delay:0.12 });
+  rise('#fnMeta', '#fnHd', { y:24, dur:0.6, delay:0.2 });
+  rise('#fnActs', '#fnHd', { y:24, dur:0.6, delay:0.28 });
 
   /* ── MAGNETIC BUTTONS ────────────────────────────────────── */
   document.querySelectorAll('.mag').forEach(el=>{
